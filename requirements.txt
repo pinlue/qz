@@ -1,12 +1,10 @@
 django==5.2.6
-asgiref==3.9.2
-sqlparse==0.5.3
+
 pillow==11.3.0
 
 python-decouple==3.8
 
-psycopg==3.2.10
 psycopg-binary==3.2.10
 
-typing-extensions==4.15.0
-tzdata==2025.2
+celery==5.4.0
+flower==2.0.1
