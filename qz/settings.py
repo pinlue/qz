@@ -136,3 +136,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 #Celery
 CELERY_BROKER_URL = f"amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASS')}@localhost:5672//"
+
+#Users
+AUTH_USER_MODEL = "users.User"
