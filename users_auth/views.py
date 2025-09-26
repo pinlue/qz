@@ -1,3 +1,5 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -10,6 +12,23 @@ from .tasks import send_verification_email, schedule_email_deletion
 class EmailChangeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        request_body=EmailChangeSerializer,
+        responses={
+            200: openapi.Response(
+                description='Verification email sent',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'detail': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response('Invalid input'),
+        },
+        operation_description="Change user email and send verification email.",
+        tags=["email"]
+    )
     def post(self, request):
         serializer = EmailChangeSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -28,9 +47,30 @@ class EmailChangeView(APIView):
         return Response({'detail': 'verification email sent'}, status=status.HTTP_200_OK)
 
 
+
 class EmailVerifyView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(
+        request_body=EmailVerifySerializer,
+        responses={
+            200: openapi.Response(
+                description='Email verified',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'status': openapi.Schema(type=openapi.TYPE_STRING),
+                        'email': openapi.Schema(type=openapi.TYPE_STRING),
+                        'primary': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'verified': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                    }
+                )
+            ),
+            400: openapi.Response('Invalid input'),
+        },
+        operation_description="Verify user email.",
+        tags=["email"]
+    )
     def post(self, request):
         serializer = EmailVerifySerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
