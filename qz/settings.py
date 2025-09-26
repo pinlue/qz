@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'users_auth.apps.UsersAuthConfig',
+    'common.apps.CommonConfig',
 
     #docs
     "drf_yasg",

@@ -1,4 +1,9 @@
 .venv/
 .idea/
 /.env
+
 /commans.txt
+
+/celery/celerybeat-schedule
+/celery/celerybeat-schedule-shm
+/celery/celerybeat-schedule-wal
