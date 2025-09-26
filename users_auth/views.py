@@ -27,7 +27,7 @@ class EmailChangeView(APIView):
             400: openapi.Response('Invalid input'),
         },
         operation_description="Change user email and send verification email.",
-        tags=["email"]
+        tags=["auth"]
     )
     def post(self, request):
         serializer = EmailChangeSerializer(data=request.data, context={'request': request})
@@ -69,7 +69,7 @@ class EmailVerifyView(APIView):
             400: openapi.Response('Invalid input'),
         },
         operation_description="Verify user email.",
-        tags=["email"]
+        tags=["auth"]
     )
     def post(self, request):
         serializer = EmailVerifySerializer(data=request.data, context={'request': request})

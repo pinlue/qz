@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users_auth.apps.UsersAuthConfig',
 
     'languages.apps.LanguagesConfig',
+    'topics.apps.TopicsConfig',
 
     'common.apps.CommonConfig',
 
