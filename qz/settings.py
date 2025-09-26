@@ -42,6 +42,9 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'users_auth.apps.UsersAuthConfig',
+
+    'languages.apps.LanguagesConfig',
+
     'common.apps.CommonConfig',
 
     #docs
