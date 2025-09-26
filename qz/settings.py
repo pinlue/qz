@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
@@ -178,6 +178,16 @@ REST_AUTH = {
     'OLD_PASSWORD_FIELD_ENABLED': True,
 }
 
+#JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+}
+
 #Allauth
 ACCOUNT_ADAPTER = 'users_auth.adapters.CustomAccountAdapter'
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
@@ -196,3 +206,6 @@ if DEBUG:
 else:
     pass
     #TODO: setup smtp email backend
+
+#Frontend
+EMAIL_VERIFICATION_URL = 'http://localhost:3000/verify-email/'
