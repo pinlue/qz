@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'languages.apps.LanguagesConfig',
     'topics.apps.TopicsConfig',
     'integration.apps.IntegrationConfig',
+    'folders.apps.FoldersConfig',
 
     'common.apps.CommonConfig',
 
