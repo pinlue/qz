@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+from cryptography.fernet import Fernet
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 
     'languages.apps.LanguagesConfig',
     'topics.apps.TopicsConfig',
+    'integration.apps.IntegrationConfig',
 
     'common.apps.CommonConfig',
 
@@ -213,3 +215,7 @@ else:
 
 #Frontend
 EMAIL_VERIFICATION_URL = 'http://localhost:3000/verify-email/'
+
+#Fernet
+FERNET_SECRET_KEY = config('FERNET_SECRET_KEY')
+fernet = Fernet(FERNET_SECRET_KEY.encode())

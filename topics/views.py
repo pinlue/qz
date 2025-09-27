@@ -9,7 +9,7 @@ class TopicViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in {'list', 'retrieve'}:
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [permissions.IsAdminUser]
-        return [permission() for permission in permission_classes]
+            return [permissions.AllowAny()]
+        elif self.action in {'create', 'update', 'partial_update', 'destroy'}:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]

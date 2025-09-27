@@ -1,0 +1,1 @@
+#ToDo UserPrivateSerializer(and use it for dj_rest_auth.serializers.UserDetailsSerializer)

@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from topics.models import Topic
+
+
+#ToDo : Customize admin model
+admin.site.register(Topic)
