@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/v1/topics/', include('topics.urls')),
     path('api/v1/deepl/', include('integration.urls')),
     path('api/v1/folders/', include('folders.urls')),
+    path('api/v1/modules/', include('modules.urls')),
 
     #docs
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

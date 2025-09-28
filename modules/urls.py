@@ -1,8 +1,8 @@
 from rest_framework.routers import DefaultRouter
-from .views import FolderViewSet
+from .views import ModuleViewSet
 
 
 router = DefaultRouter()
-router.register(r'', FolderViewSet, basename='folder')
+router.register(r'', ModuleViewSet, basename='folder')
 
 urlpatterns = router.urls

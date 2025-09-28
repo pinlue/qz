@@ -45,7 +45,7 @@ class DeepLApiKeySerializer(serializers.ModelSerializer):
         return None
 
 
-class TranslationRequestSerializer(serializers.Serializer):
+class TranslationSerializer(serializers.Serializer):
     words = serializers.ListField(
         child=serializers.CharField(), min_length=1
     )

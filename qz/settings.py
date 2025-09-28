@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'topics.apps.TopicsConfig',
     'integration.apps.IntegrationConfig',
     'folders.apps.FoldersConfig',
+    'modules.apps.ModulesConfig',
 
     'common.apps.CommonConfig',
 

@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from common.permissions import comb_perm, IsOwner
 from .models import DeepLApiKey
 from .permissions import HasAcceptedDeepLApiKeyPermission
-from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationRequestSerializer
+from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationSerializer
 
 
 class DeepLApiKeyViewSet(viewsets.ModelViewSet):
@@ -42,7 +42,7 @@ class DeepLTranslationsView(APIView):
     permission_classes = [permissions.IsAuthenticated, HasAcceptedDeepLApiKeyPermission]
 
     @swagger_auto_schema(
-        request_body=TranslationRequestSerializer,
+        request_body=TranslationSerializer,
         responses={
             200: openapi.Response(
                 description="Successful translation",
@@ -76,7 +76,7 @@ class DeepLTranslationsView(APIView):
         }
     )
     def post(self, request):
-        serializer = TranslationRequestSerializer(data=request.data)
+        serializer = TranslationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         words = serializer.validated_data['words']
         target_lang = serializer.validated_data['target_lang']
