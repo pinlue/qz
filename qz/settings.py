@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'modules.apps.ModulesConfig',
     'cards.apps.CardsConfig',
 
+    'interactions.apps.InteractionsConfig',
+
     'common.apps.CommonConfig',
 
     #docs

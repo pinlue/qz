@@ -8,11 +8,12 @@ from rest_framework.response import Response
 from common.permissions import comb_perm, IsOwner
 from folders.models import Folder
 from folders.serializators import FolderListSerializer, FolderDetailSerializer, FolderCreateUpdateSerializer
+from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
 from modules.serializators import ModuleIdSerializer
 
 
-class FolderViewSet(viewsets.ModelViewSet):
+class FolderViewSet(PinMixin, SaveMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         base_qs = Folder.objects.select_related('user')
         if self.action == 'list':

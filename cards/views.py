@@ -1,13 +1,16 @@
-from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
 
 from cards.models import Card
 from cards.permissions import IsModuleOwner
 from cards.serializators import CardSerializer
 from common.permissions import comb_perm
+from interactions.shemas import ToggleRelationSchema
+from interactions.views import SaveMixin
 
 
-class CardViewSet(viewsets.ModelViewSet):
+class CardViewSet(SaveMixin, viewsets.ModelViewSet):
     serializer_class = CardSerializer
 
     def get_permissions(self):
@@ -48,3 +51,13 @@ class CardViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(tags=["cards"])
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        methods=['post', 'delete'],
+        auto_schema=ToggleRelationSchema,
+        request_body=no_body,
+        tags=['cards']
+    )
+    @action(detail=True, methods=['post', 'delete'], url_path='saves')
+    def saves(self, request, pk=None, **kwargs):
+        return super().toggle(request, pk=pk, **kwargs)
