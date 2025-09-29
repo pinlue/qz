@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'integration.apps.IntegrationConfig',
     'folders.apps.FoldersConfig',
     'modules.apps.ModulesConfig',
+    'cards.apps.CardsConfig',
 
     'common.apps.CommonConfig',
 

@@ -1,8 +1,14 @@
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
+from rest_framework_nested import routers
+
+from cards.views import CardViewSet
 from .views import ModuleViewSet
 
 
-router = DefaultRouter()
-router.register(r'', ModuleViewSet, basename='folder')
+router = SimpleRouter()
+router.register(r'modules', ModuleViewSet, basename='modules')
 
-urlpatterns = router.urls
+modules_router = routers.NestedSimpleRouter(router, r'modules', lookup='module')
+modules_router.register(r'cards', CardViewSet, basename='module-cards')
+
+urlpatterns = router.urls + modules_router.urls

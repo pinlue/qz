@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import viewsets, permissions
 
 from common.permissions import comb_perm, IsOwner
@@ -7,6 +8,12 @@ from modules.serializators import ModuleListSerializer, ModuleDetailSerializer, 
 
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
+
+    def get_queryset(self):
+        qs = Module.objects.annotate(cards_count=Count('cards'))
+        if self.action == 'retrieve':
+            qs = qs.prefetch_related('cards')
+        return qs
 
     def get_serializer_class(self):
         if self.action == 'list':
