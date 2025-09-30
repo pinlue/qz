@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'modules.apps.ModulesConfig',
     'cards.apps.CardsConfig',
 
+    'abstracts.apps.AbstractsConfig',
     'interactions.apps.InteractionsConfig',
 
     'common.apps.CommonConfig',
@@ -71,6 +72,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'dj_rest_auth.registration',
+
+    #tags
+    'taggit',
 ]
 
 SITE_ID = 1

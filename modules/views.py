@@ -1,13 +1,14 @@
 from django.db.models import Count
 from rest_framework import viewsets, permissions
 
+from abstracts.views import TagMixin, VisibleMixin
 from common.permissions import comb_perm, IsOwner
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
 from modules.serializators import ModuleListSerializer, ModuleDetailSerializer, ModuleCreateUpdateSerializer
 
 
-class ModuleViewSet(PinMixin, SaveMixin, viewsets.ModelViewSet):
+class ModuleViewSet(PinMixin, SaveMixin, TagMixin, VisibleMixin, viewsets.ModelViewSet):
     queryset = Module.objects.all()
 
     def get_queryset(self):

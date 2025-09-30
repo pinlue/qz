@@ -5,6 +5,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from abstracts.views import VisibleMixin
 from common.permissions import comb_perm, IsOwner
 from folders.models import Folder
 from folders.serializators import FolderListSerializer, FolderDetailSerializer, FolderCreateUpdateSerializer
@@ -13,7 +14,7 @@ from modules.models import Module
 from modules.serializators import ModuleIdSerializer
 
 
-class FolderViewSet(PinMixin, SaveMixin, viewsets.ModelViewSet):
+class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         base_qs = Folder.objects.select_related('user')
         if self.action == 'list':

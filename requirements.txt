@@ -21,3 +21,5 @@ drf-yasg==1.21.10
 deepl==1.22.0
 
 cryptography==46.0.1
+
+django-taggit==6.1.0
