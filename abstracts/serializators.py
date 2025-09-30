@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from abstracts.models import Visibles
+from abstracts.models import Visible
 
 
 class TagsSerializer(serializers.Serializer):
@@ -11,4 +11,4 @@ class TagsSerializer(serializers.Serializer):
 
 
 class VisibleSerializer(serializers.Serializer):
-    visible = serializers.ChoiceField(choices=Visibles.Status.choices)
+    visible = serializers.ChoiceField(choices=Visible.Status.choices)

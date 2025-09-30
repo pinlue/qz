@@ -1,3 +1,4 @@
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -6,11 +7,13 @@ from cards.models import Card
 from cards.permissions import IsModuleOwner
 from cards.serializators import CardSerializer
 from common.permissions import comb_perm
+from generic_status.serializators import LearnSerializer
+from generic_status.views import LearnMixin
 from interactions.shemas import ToggleRelationSchema
 from interactions.views import SaveMixin
 
 
-class CardViewSet(SaveMixin, viewsets.ModelViewSet):
+class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
     serializer_class = CardSerializer
 
     def get_permissions(self):
@@ -61,3 +64,24 @@ class CardViewSet(SaveMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post', 'delete'], url_path='saves')
     def saves(self, request, pk=None, **kwargs):
         return super().toggle(request, pk=pk, **kwargs)
+
+    @swagger_auto_schema(
+        method="post",
+        request_body=LearnSerializer,
+        responses={
+            201: openapi.Response("Created"),
+            200: openapi.Response("Updated"),
+        },
+        tags=["cards"]
+    )
+    @swagger_auto_schema(
+        method="delete",
+        responses={
+            204: openapi.Response("Deleted"),
+            404: openapi.Response("Relation not found"),
+        },
+        tags=["cards"]
+    )
+    @action(detail=True, methods=['post', 'delete'])
+    def learns(self, request, pk=None, **kwargs):
+        return super().learns(request, pk=pk, **kwargs)

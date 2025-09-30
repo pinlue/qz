@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
     'abstracts.apps.AbstractsConfig',
     'interactions.apps.InteractionsConfig',
+    'generic_status.apps.GenericStatusConfig',
 
     'common.apps.CommonConfig',
 

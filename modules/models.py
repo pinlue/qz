@@ -1,11 +1,11 @@
 from django.db import models
 from rest_framework.exceptions import ValidationError
 
-from abstracts.models import Tags, Visibles
+from abstracts.models import Tag, Visible
 from users.models import User
 
 
-class Module(Tags, Visibles, models.Model):
+class Module(Tag, Visible, models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
