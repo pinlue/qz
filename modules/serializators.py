@@ -25,7 +25,7 @@ class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['name', 'description', 'user', 'topic', 'lang_from', 'lang_to', 'cards']
+        fields = ['id', 'name', 'description', 'user', 'topic', 'lang_from', 'lang_to', 'cards']
         read_only_fields = ['user']
 
     def create(self, validated_data):
@@ -52,9 +52,3 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module
         fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards_count', 'cards']
-
-
-class ModuleIdSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Module
-        fields = ['id']

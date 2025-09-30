@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import viewsets, permissions, status
@@ -11,7 +12,6 @@ from folders.models import Folder
 from folders.serializators import FolderListSerializer, FolderDetailSerializer, FolderCreateUpdateSerializer
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
-from modules.serializators import ModuleIdSerializer
 
 
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
@@ -71,9 +71,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
             permission_classes=[comb_perm(any, (permissions.IsAdminUser, IsOwner)),])
     def manage_module(self, request, pk=None, module_id=None):
         folder = self.get_object()
-        serializer = ModuleIdSerializer(data={'id': module_id})
-        serializer.is_valid(raise_exception=True)
-        module = Module.objects.get(id=serializer.validated_data['id'])
+        module = get_object_or_404(Module, id=module_id)
 
         if request.method == 'POST':
             folder.modules.add(module)
