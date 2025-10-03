@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from interactions.models import Pin, Save
+from interactions.permissions import InteractionsPermsMixin
 from interactions.shemas import ToggleRelationSchema
 
 
@@ -30,7 +31,7 @@ class RelationMixin:
             return Response(status=status.HTTP_200_OK)
 
 
-class PinMixin(RelationMixin):
+class PinMixin(RelationMixin, InteractionsPermsMixin):
     relation_model = Pin
 
     @swagger_auto_schema(methods=['post', 'delete'], auto_schema=ToggleRelationSchema, request_body=no_body)
@@ -38,7 +39,7 @@ class PinMixin(RelationMixin):
     def pins(self, request, pk=None, **kwargs):
         return super().toggle(request, pk=pk)
 
-class SaveMixin(RelationMixin):
+class SaveMixin(RelationMixin, InteractionsPermsMixin):
     relation_model = Save
 
     @swagger_auto_schema(methods=['post', 'delete'], auto_schema=ToggleRelationSchema, request_body=no_body)

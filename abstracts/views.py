@@ -1,11 +1,12 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from taggit.models import Tag
 
 from abstracts.serializators import TagsSerializer, VisibleSerializer
+from common.permissions import IsOwner, comb_perm
 
 
 class TagMixin:
@@ -75,5 +76,13 @@ class VisibleMixin:
         obj.save(update_fields=['visible'])
 
         return Response(status=status.HTTP_200_OK)
+
+    def get_permissions(self):
+        if self.action == 'visibles':
+            return [comb_perm(any,(
+                IsOwner,
+                permissions.IsAdminUser,
+            ))()]
+        return super().get_permissions()
 
 
