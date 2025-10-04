@@ -45,6 +45,9 @@ urlpatterns = [
     #docs
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    #debugging tool
+    path('silk/', include('silk.urls', namespace='silk')),
 ]
 
 if settings.DEBUG:

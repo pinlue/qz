@@ -31,12 +31,6 @@ class DeepLApiKeyViewSet(viewsets.ModelViewSet):
             ))()]
         return [permissions.AllowAny()]
 
-    def get_queryset(self):
-        user = self.request.user
-        if self.action == 'list':
-            return DeepLApiKey.objects.all()
-        return DeepLApiKey.objects.filter(user=user)
-
 
 class DeepLTranslationsView(APIView):
     permission_classes = [permissions.IsAuthenticated, HasAcceptedDeepLApiKeyPermission]

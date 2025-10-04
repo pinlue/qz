@@ -76,6 +76,9 @@ INSTALLED_APPS = [
 
     #tags
     'taggit',
+
+    #debugging tool
+    'silk'
 ]
 
 SITE_ID = 1
@@ -91,6 +94,9 @@ MIDDLEWARE = [
 
     #allauth
     "allauth.account.middleware.AccountMiddleware",
+
+    #debugging tool
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'qz.urls'

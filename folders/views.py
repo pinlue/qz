@@ -54,9 +54,10 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
                 return qs.prefetch_related(
                     Prefetch(
                         "modules",
-                        queryset=Module.objects.filter(modules_filter).distinct()
+                        queryset=Module.objects.filter(modules_filter)
+                        .select_related("user", "topic", "lang_from", "lang_to")
+                        )
                     )
-                )
         return base_qs
 
 
