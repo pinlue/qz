@@ -1,10 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from common.permissions import comb_perm, IsOwner
 from generic_status.models import Learn, Rate, Perm
 from generic_status.serializators import RateSerializer, PermSerializer, LearnSerializer
 
@@ -100,6 +101,11 @@ class RateMixin(BaseUserRelationMixin):
 class PermMixin(BaseUserRelationMixin):
     relation_model = Perm
     serializer_class = PermSerializer
+
+    def get_permissions(self):
+        if self.action == 'perms':
+            return [comb_perm(any, (permissions.IsAdminUser, IsOwner))()]
+        return super().get_permissions()
 
     @swagger_auto_schema(
         method="post",

@@ -31,6 +31,7 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
         module_pk = self.kwargs.get('module_pk')
         serializer.save(module_id=module_pk)
 
+
     @swagger_auto_schema(tags=["cards"])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

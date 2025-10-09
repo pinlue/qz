@@ -1,0 +1,1 @@
+class ChainBreak(Exception): pass

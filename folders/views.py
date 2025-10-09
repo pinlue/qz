@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q, Prefetch
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -8,53 +7,40 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from abstracts.permissions import IsPublic
+from abstracts.permissions import IsPublic, PublicIncludedLink
 from abstracts.views import VisibleMixin
-from common.permissions import comb_perm, IsOwner
+from common.permissions import comb_perm, IsOwner, get_accessible_q
 from folders.models import Folder
 from folders.permissions import NestedModuleIsPublic, NestedModuleIsViewer, NestedModuleIsEditor, NestedModuleIsOwner
 from folders.serializators import FolderListSerializer, FolderDetailSerializer, FolderCreateUpdateSerializer
-from generic_status.models import Perm
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
+from modules.views import ModuleViewSet
 
 
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
+    list_action_chain_links = [PublicIncludedLink]
+
     def get_queryset(self):
         base_qs = Folder.objects.select_related("user")
-        module_ct = ContentType.objects.get_for_model(Module)
-
-        if self.request.user.is_authenticated:
-            user = self.request.user
-            modules_filter = (
-                    Q(visible="public")
-                    | Q(user=user)
-                    | Q(
-                id__in=Perm.objects.filter(
-                    content_type=module_ct,
-                    user=user,
-                    perm__in=["editor", "viewer"]
-                ).values("object_id")
-            )
-            )
-        else:
-            modules_filter = Q(visible="public")
 
         if self.action in {"list", "retrieve"}:
+            modules_q = get_accessible_q(self.request, ModuleViewSet.list_action_chain_links)
+
             qs = base_qs.annotate(
                 modules_count=Count(
                     "modules",
-                    filter=Q(modules__in=Module.objects.filter(modules_filter)),
+                    filter=Q(modules__in=Module.objects.filter(modules_q)),
                     distinct=True,
                 )
             )
             if self.action == "list":
-                return qs.filter(visible="public")
+                return qs.filter(get_accessible_q(request=self.request, links=self.list_action_chain_links))
             if self.action == "retrieve":
                 return qs.prefetch_related(
                     Prefetch(
                         "modules",
-                        queryset=Module.objects.filter(modules_filter)
+                        queryset=Module.objects.filter(modules_q)
                         .select_related("user", "topic", "lang_from", "lang_to")
                         )
                     )

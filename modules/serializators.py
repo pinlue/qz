@@ -51,4 +51,4 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards_count', 'cards']
+        fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards', 'cards_count']
