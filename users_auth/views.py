@@ -41,7 +41,7 @@ class EmailChangeView(APIView):
         if not created and not email_obj.verified:
             return Response({'status': 'ok'})
 
-        schedule_email_deletion(email_obj.user_id, email_obj.email, delay_days=3)
+        schedule_email_deletion(email_obj.user_id, email_obj.email)
         send_verification_email.delay(email_obj.user_id, email_obj.email)
 
         return Response({'detail': 'verification email sent'}, status=status.HTTP_200_OK)

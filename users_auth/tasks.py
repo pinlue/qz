@@ -9,8 +9,8 @@ from django.utils import timezone
 from common.models import ScheduledTask
 
 
-def schedule_email_deletion(user_id, email, delay_days=3):
-    scheduled_time = timezone.now() + timedelta(days=delay_days)
+def schedule_email_deletion(user_id, email, after = timedelta(days=3)):
+    scheduled_time = timezone.now() + after
     task, created = ScheduledTask.objects.update_or_create(
         name='users_auth.tasks.delete_unverified_email',
         kwargs={'user_id': user_id, 'email': email},
@@ -27,8 +27,7 @@ def send_registration_email(subject, message, recipient_list):
 @shared_task
 def delete_unverified_email(user_id, email):
     try:
-        email_obj = EmailAddress.objects.get(user_id=user_id, email=email, verified=False)
-        email_obj.delete()
+        EmailAddress.objects.get(user_id=user_id, email=email, verified=False).delete()
     except EmailAddress.DoesNotExist:
         raise ValueError(f"EmailAddress with user_id={user_id} and email={email} does not exist or already verified.")
 

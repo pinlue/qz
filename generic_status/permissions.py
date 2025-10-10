@@ -4,11 +4,10 @@ from rest_framework.permissions import BasePermission
 
 from common.access_chain import AccessibleChain
 from common.decorators import login_required_link
-from common.permissions import NestedPermissionMixin
 from generic_status.models import Perm
 
 
-class BaseRolePermission(NestedPermissionMixin, BasePermission):
+class BaseRolePermission(BasePermission):
     role = None
 
     def get_content_type(self, obj):

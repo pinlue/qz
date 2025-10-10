@@ -1,33 +1,31 @@
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from rest_framework.permissions import BasePermission
 
 from common.access_chain import AccessibleChain
 from common.decorators import login_required_link
 
 
-class NestedPermissionMixin:
-    def __init__(self, nested=False, nested_model=None, nested_lookup_url_kwarg=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.nested = nested
-        self.nested_model = nested_model
-        self.nested_lookup_url_kwarg = nested_lookup_url_kwarg
+class RelatedPermissionProxy:
+    def __init__(self, decorated, model, lookup_url_kwarg, *args, **kwargs):
+        self.decorated_instance = decorated(*args, **kwargs)
+        self.model = model
+        self.lookup_url_kwarg = lookup_url_kwarg
 
-    def get_nested_object(self, view):
-        if self.nested and self.nested_model and self.nested_lookup_url_kwarg:
-            nested_id = view.kwargs.get(self.nested_lookup_url_kwarg)
-            if nested_id is not None:
-                return get_object_or_404(self.nested_model, id=nested_id)
-        return None
+    def has_permission(self, request, view):
+        return self.decorated_instance.has_permission(request, view)
 
-    def resolve_object(self, view, obj):
-        nested_obj = self.get_nested_object(view)
-        return nested_obj or obj
-
-
-class IsOwner(NestedPermissionMixin, BasePermission):
     def has_object_permission(self, request, view, obj):
-        obj = self.resolve_object(view, obj)
+        nested_id = view.kwargs.get(self.lookup_url_kwarg)
+        if nested_id is not None:
+            try:
+                obj = self.model.objects.get(id=nested_id)
+            except self.model.DoesNotExist:
+                return False
+        return self.decorated_instance.has_object_permission(request, view, obj)
+
+
+class IsOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
         return obj.user == request.user
 
 

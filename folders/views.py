@@ -26,7 +26,6 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
 
         if self.action in {"list", "retrieve"}:
             modules_q = get_accessible_q(self.request, ModuleViewSet.list_action_chain_links)
-
             qs = base_qs.annotate(
                 modules_count=Count(
                     "modules",
@@ -45,7 +44,6 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
                         )
                     )
         return base_qs
-
 
     def get_serializer_class(self):
         if self.action == 'list':

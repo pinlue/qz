@@ -3,12 +3,10 @@ from rest_framework.permissions import BasePermission
 
 from abstracts.models import Visible
 from common.access_chain import AccessibleChain
-from common.permissions import NestedPermissionMixin
 
 
-class IsPublic(NestedPermissionMixin, BasePermission):
+class IsPublic(BasePermission):
     def has_object_permission(self, request, view, obj):
-        obj = self.resolve_object(view, obj)
         return getattr(obj, "visible", None) == Visible.Status.PUBLIC
 
 

@@ -1,16 +1,18 @@
+from functools import partial
+
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 
 from cards.models import Card
-from cards.permissions import IsModuleOwner
 from cards.serializators import CardSerializer
-from common.permissions import comb_perm
+from common.permissions import comb_perm, RelatedPermissionProxy, IsOwner
 from generic_status.serializators import LearnSerializer
 from generic_status.views import LearnMixin
 from interactions.shemas import ToggleRelationSchema
 from interactions.views import SaveMixin
+from modules.models import Module
 
 
 class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
@@ -20,7 +22,10 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
         if self.action in {'retrieve', 'list'}:
             return [permissions.AllowAny()]
         elif self.action in {'create', 'update', 'partial_update', 'destroy'}:
-            return [comb_perm(any, (permissions.IsAdminUser, IsModuleOwner))()]
+            return [comb_perm(any, (
+                permissions.IsAdminUser,
+                partial(RelatedPermissionProxy, decorated=IsOwner, model=Module, lookup_url_kwarg='module_pk'),
+            ))()]
         return [permissions.AllowAny()]
 
     def get_queryset(self):
