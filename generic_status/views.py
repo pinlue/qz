@@ -14,40 +14,41 @@ class BaseUserRelationMixin:
     relation_model = None
     serializer_class = None
 
-    def get_relation_queryset(self, obj):
-        return self.relation_model.objects.filter(
-            user=self.request.user,
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.id
+    def get_target_user(self, request, serializer):
+        return request.user
+
+    def get_queryset_filter(self, user, obj):
+        return {
+            'user': user,
+            'content_type': ContentType.objects.get_for_model(obj),
+            'object_id': obj.id
+        }
+
+    def _create_or_update_relation(self, user, obj, data):
+        return self.relation_model.objects.update_or_create(
+            **self.get_queryset_filter(user, obj),
+            defaults=data
         )
 
-    def add_relation(self, request, pk=None, **kwargs):
+    def _delete_relation(self, user, obj):
+        qs = self.relation_model.objects.filter(**self.get_queryset_filter(user, obj))
+        deleted, _ = qs.delete()
+        return deleted
+
+    def handle_relation_action(self, request, pk=None, **kwargs):
         obj = self.get_object()
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        relation, created = self.relation_model.objects.update_or_create(
-            user=request.user,
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.id,
-            defaults=serializer.validated_data
-        )
+        user = self.get_target_user(request, serializer)
+        data = serializer.validated_data
 
-        return Response(status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
-
-    def remove_relation(self, request, pk=None, **kwargs):
-        obj = self.get_object()
-        qs = self.get_relation_queryset(obj)
-        deleted, _ = qs.delete()
-        if deleted:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"error": "Relation not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    def handle_relation_action(self, request, pk=None, **kwargs):
         if request.method == 'POST':
-            return self.add_relation(request, pk, **kwargs)
+            relation, created = self._create_or_update_relation(user, obj, data)
+            return Response(status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
         elif request.method == 'DELETE':
-            return self.remove_relation(request, pk, **kwargs)
+            deleted = self._delete_relation(user, obj)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LearnMixin(BaseUserRelationMixin):
@@ -101,6 +102,9 @@ class RateMixin(BaseUserRelationMixin):
 class PermMixin(BaseUserRelationMixin):
     relation_model = Perm
     serializer_class = PermSerializer
+
+    def get_target_user(self, request, serializer):
+        return serializer.validated_data['user']
 
     def get_permissions(self):
         if self.action == 'perms':
