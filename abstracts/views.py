@@ -1,12 +1,12 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, permissions
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from taggit.models import Tag
 
 from abstracts.serializators import TagsSerializer, VisibleSerializer
-from common.permissions import IsOwner, comb_perm
+from common.permissions import IsObjOwner, IsObjAdmin
 
 
 class TagMixin:
@@ -56,6 +56,11 @@ class TagMixin:
         obj.tags.remove(tag)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def get_permissions(self):
+        if self.action in ['tags', 'remove_tag']:
+            return [(IsObjOwner | IsObjAdmin)()]
+        return super().get_permissions()
+
 
 class VisibleMixin:
     @swagger_auto_schema(
@@ -79,10 +84,7 @@ class VisibleMixin:
 
     def get_permissions(self):
         if self.action == 'visibles':
-            return [comb_perm(any,(
-                IsOwner,
-                permissions.IsAdminUser,
-            ))()]
+            return [(IsObjOwner | IsObjAdmin)()]
         return super().get_permissions()
 
 

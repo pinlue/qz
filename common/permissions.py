@@ -5,14 +5,11 @@ from common.access_chain import AccessibleChain
 from common.decorators import login_required_link
 
 
-class RelatedPermissionProxy:
+class RelatedObjPermissionProxy:
     def __init__(self, decorated, model, lookup_url_kwarg, *args, **kwargs):
         self.decorated_instance = decorated(*args, **kwargs)
         self.model = model
         self.lookup_url_kwarg = lookup_url_kwarg
-
-    def has_permission(self, request, view):
-        return self.decorated_instance.has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
         nested_id = view.kwargs.get(self.lookup_url_kwarg)
@@ -23,10 +20,37 @@ class RelatedPermissionProxy:
                 return False
         return self.decorated_instance.has_object_permission(request, view, obj)
 
+    def __getattr__(self, name):
+        return getattr(self.decorated_instance, name)
 
-class IsOwner(BasePermission):
+    def __setattr__(self, name, value):
+        if name in ('decorated_instance', 'model', 'lookup_url_kwarg'):
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self.decorated_instance, name, value)
+
+    def __delattr__(self, name):
+        if name in ('decorated_instance', 'model', 'lookup_url_kwarg'):
+            object.__delattr__(self, name)
+        else:
+            delattr(self.decorated_instance, name)
+
+
+def partial_cls(base, *args, **kwargs):
+    class Adapter(base):
+        def __init__(self):
+            super().__init__(*args, **kwargs)
+    return Adapter
+
+
+class IsObjOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.user == request.user
+
+
+class IsObjAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return bool(request.user and request.user.is_staff)
 
 
 class OwnerIncludedLink(AccessibleChain):
@@ -44,19 +68,3 @@ def get_accessible_q(request, links):
     for l in links:
         root.add(l())
     return root.handle()
-
-
-def comb_perm(logic_func, permission_classes):
-    class CombinedPermission(BasePermission):
-        def has_permission(self, request, view):
-            return logic_func(
-                perm().has_permission(request, view)
-                for perm in permission_classes
-            )
-
-        def has_object_permission(self, request, view, obj):
-            return logic_func(
-                perm().has_object_permission(request, view, obj)
-                for perm in permission_classes
-            )
-    return CombinedPermission

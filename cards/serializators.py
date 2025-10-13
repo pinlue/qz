@@ -6,14 +6,14 @@ from cards.models import Card
 class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
-        fields = ['id', 'original', 'translation', 'module']
-        read_only_fields = ['id', 'module']
+        fields = ["id", "original", "translation", "module"]
+        read_only_fields = ["id", "module"]
 
 
 class CardShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
-        fields = ['id', 'original', 'translation']
+        fields = ["id", "original", "translation"]
 
 
 class CardInputSerializer(serializers.Serializer):

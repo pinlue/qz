@@ -5,9 +5,9 @@ from abstracts.models import Visible
 from common.access_chain import AccessibleChain
 
 
-class IsPublic(BasePermission):
+class IsObjPublic(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return getattr(obj, "visible", None) == Visible.Status.PUBLIC
+        return obj.visible == Visible.Status.PUBLIC
 
 
 class PublicIncludedLink(AccessibleChain):

@@ -5,10 +5,11 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.permissions import comb_perm, IsOwner
+from common.permissions import IsObjOwner, IsObjAdmin
 from .models import DeepLApiKey
-from .permissions import HasAcceptedDeepLApiKeyPermission
-from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationSerializer
+from .permissions import HasAcceptedDeepLApiKeyView
+from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationSerializer, \
+    DeepLApiKeyUpdateSerializer
 
 
 class DeepLApiKeyViewSet(viewsets.ModelViewSet):
@@ -17,6 +18,8 @@ class DeepLApiKeyViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return DeepLApiKeyCreateSerializer
+        if self.action in {'update', 'partial_update'}:
+            return DeepLApiKeyUpdateSerializer
         return DeepLApiKeySerializer
 
     def get_permissions(self):
@@ -25,15 +28,12 @@ class DeepLApiKeyViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             return [permissions.IsAuthenticated()]
         elif self.action in {'retrieve', 'update', 'partial_update', 'destroy'}:
-            return [comb_perm(any,(
-                permissions.IsAdminUser,
-                IsOwner
-            ))()]
-        return [permissions.AllowAny()]
+            return [(IsObjAdmin | IsObjOwner)()]
+        return super().get_permissions()
 
 
 class DeepLTranslationsView(APIView):
-    permission_classes = [permissions.IsAuthenticated, HasAcceptedDeepLApiKeyPermission]
+    permission_classes = [permissions.IsAuthenticated, HasAcceptedDeepLApiKeyView]
 
     @swagger_auto_schema(
         request_body=TranslationSerializer,

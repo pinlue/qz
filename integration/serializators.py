@@ -26,6 +26,20 @@ class DeepLApiKeyCreateSerializer(serializers.ModelSerializer):
         return instance
 
 
+class DeepLApiKeyUpdateSerializer(serializers.ModelSerializer):
+    api_key = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = DeepLApiKey
+        fields = ['api_key']
+
+    def update(self, instance, validated_data):
+        instance.api_key = validated_data.get('api_key', instance.api_key)
+        instance.status = "PENDING"
+        instance.save()
+        return instance
+
+
 class DeepLApiKeySerializer(serializers.ModelSerializer):
     remaining_characters = serializers.SerializerMethodField()
 

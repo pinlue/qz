@@ -12,4 +12,4 @@ class TopicViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]
         elif self.action in {'create', 'update', 'partial_update', 'destroy'}:
             return [permissions.IsAdminUser()]
-        return [permissions.AllowAny()]
+        return super().get_permissions()

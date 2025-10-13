@@ -25,3 +25,6 @@ class Perm(UserObjectRelation):
         EDITOR = "editor", "Editor"
         VIEWER = "viewer", "Viewer"
     perm = models.CharField(max_length=6, choices=Status.choices)
+
+    class Meta:
+        unique_together = ('user', 'content_type', 'object_id', 'perm')
