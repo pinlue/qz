@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from rest_framework.exceptions import ValidationError
 
 from abstracts.models import Tag, Visible
@@ -29,3 +29,27 @@ class Module(Tag, Visible, models.Model):
 
     def __str__(self):
         return self.name
+
+    def copy(self, new_user: User) -> None:
+        from cards.models import Card
+
+        with transaction.atomic():
+            new_module = Module.objects.create(
+                name=self.name,
+                user=new_user,
+                topic=self.topic,
+                lang_from=self.lang_from,
+                lang_to=self.lang_to,
+            )
+
+            cards_bulk = [
+                Card(
+                    module=new_module,
+                    original=card.original,
+                    translation=card.translation,
+                )
+                for card in self.cards.all()
+            ]
+
+            if cards_bulk:
+                Card.objects.bulk_create(cards_bulk)

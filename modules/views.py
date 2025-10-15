@@ -2,7 +2,9 @@ from functools import partial
 
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from abstracts.permissions import IsObjPublic, PublicIncludedLink
 from abstracts.views import TagMixin, VisibleMixin
@@ -105,3 +107,20 @@ class ModuleViewSet(
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @extend_schema(
+        request=None,
+        responses={
+            201: None,
+            404: None
+        },
+        methods=['POST']
+    )
+    @action(detail=True, methods=['post'], permission_classes=[
+        permissions.IsAuthenticated,
+        IsObjPublic | IsObjAdmin | IsObjOwner | partial_cls(HasObjRoles, roles=["viewer", "editor"]),
+    ])
+    def copies(self, request, pk=None):
+        module = self.get_object()
+        module.copy(new_user=request.user)
+        return Response(status=status.HTTP_201_CREATED)
