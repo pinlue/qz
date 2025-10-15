@@ -1,18 +1,21 @@
 from django.db.models import Count, Q, Prefetch
 from django.shortcuts import get_object_or_404
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema, no_body
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiResponse,
+)
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from abstracts.permissions import IsObjPublic, PublicIncludedLink
 from abstracts.views import VisibleMixin
+from common.decorators import swagger_safe_permissions
 from common.permissions import (
     IsObjOwner,
     get_accessible_q,
     IsObjAdmin,
-    partial_cls,
 )
 from folders.models import Folder
 from folders.serializators import (
@@ -30,6 +33,7 @@ from modules.permissions import (
 from modules.views import ModuleViewSet
 
 
+@extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     list_action_chain_links = [PublicIncludedLink]
 
@@ -73,6 +77,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
             return FolderCreateUpdateSerializer
         return FolderListSerializer
 
+    @swagger_safe_permissions
     def get_permissions(self):
         if self.action == "create":
             return [permissions.IsAuthenticated()]
@@ -92,20 +97,46 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @swagger_auto_schema(
-        methods=["post", "delete"],
-        manual_parameters=[
-            openapi.Parameter(
-                "module_id", openapi.IN_PATH, type=openapi.TYPE_INTEGER, required=True
-            )
+    @extend_schema(
+        methods=["POST"],
+        tags=["folders"],
+        parameters=[
+            OpenApiParameter(
+                name="pk",
+                type=int,
+                location="path",
+            ),
+            OpenApiParameter(
+                name="module_id",
+                type=int,
+                location="path",
+            ),
         ],
-        request_body=no_body,
         responses={
-            201: openapi.Response("Module added to folder"),
-            204: openapi.Response("Module removed from folder"),
-            400: openapi.Response("Bad request"),
-            404: openapi.Response("Module not found"),
-            405: openapi.Response("Method not allowed"),
+            201: OpenApiResponse(response=None),
+            403: OpenApiResponse(response=None),
+            404: OpenApiResponse(response=None),
+        },
+    )
+    @extend_schema(
+        methods=["DELETE"],
+        tags=["folders"],
+        parameters=[
+            OpenApiParameter(
+                name="pk",
+                type=int,
+                location="path",
+            ),
+            OpenApiParameter(
+                name="module_id",
+                type=int,
+                location="path",
+            ),
+        ],
+        responses={
+            204: OpenApiResponse(response=None),
+            403: OpenApiResponse(response=None),
+            404: OpenApiResponse(response=None),
         },
     )
     @action(
@@ -126,12 +157,8 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
 
         if request.method == "POST":
             folder.modules.add(module)
-            return Response({"status": "module added"}, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_201_CREATED)
         elif request.method == "DELETE":
             folder.modules.remove(module)
-            return Response(
-                {"status": "module removed"}, status=status.HTTP_204_NO_CONTENT
-            )
-        return Response(
-            {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

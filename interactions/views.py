@@ -1,12 +1,14 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from interactions.models import Pin, Save
 from interactions.permissions import InteractionsPermsMixin
-from interactions.shemas import ToggleRelationSchema
+from interactions.shemas import (
+    toggle_post_schema,
+    toggle_delete_schema,
+)
 
 
 class RelationMixin:
@@ -34,15 +36,17 @@ class RelationMixin:
 class PinMixin(RelationMixin, InteractionsPermsMixin):
     relation_model = Pin
 
-    @swagger_auto_schema(methods=['post', 'delete'], auto_schema=ToggleRelationSchema, request_body=no_body)
-    @action(detail=True, methods=['post', 'delete'], url_path='pins')
+    @toggle_post_schema
+    @toggle_delete_schema
+    @action(detail=True, methods=["post", "delete"], url_path="pins")
     def pins(self, request, pk=None, **kwargs):
         return super().toggle(request, pk=pk)
 
 class SaveMixin(RelationMixin, InteractionsPermsMixin):
     relation_model = Save
 
-    @swagger_auto_schema(methods=['post', 'delete'], auto_schema=ToggleRelationSchema, request_body=no_body)
-    @action(detail=True, methods=['post', 'delete'], url_path='saves')
+    @toggle_post_schema
+    @toggle_delete_schema
+    @action(detail=True, methods=["post", "delete"], url_path="saves")
     def saves(self, request, pk=None, **kwargs):
         return super().toggle(request, pk=pk)

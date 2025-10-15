@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.db.models import Count
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 
 from abstracts.permissions import IsObjPublic, PublicIncludedLink
@@ -23,6 +24,7 @@ from modules.serializators import (
 )
 
 
+@extend_schema(tags=["modules"])
 class ModuleViewSet(
     PinMixin,
     SaveMixin,

@@ -34,51 +34,42 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'users.apps.UsersConfig',
-    'users_auth.apps.UsersAuthConfig',
-
-    'languages.apps.LanguagesConfig',
-    'topics.apps.TopicsConfig',
-    'integration.apps.IntegrationConfig',
-    'folders.apps.FoldersConfig',
-    'modules.apps.ModulesConfig',
-    'cards.apps.CardsConfig',
-
-    'abstracts.apps.AbstractsConfig',
-    'interactions.apps.InteractionsConfig',
-    'generic_status.apps.GenericStatusConfig',
-
-    'common.apps.CommonConfig',
-
-    #docs
-    "drf_yasg",
-
-    #rest framework
-    'rest_framework',
-    'rest_framework.authtoken',
-
-    #dj-rest-auth
-    'dj_rest_auth',
-    
-    #with social auth
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'dj_rest_auth.registration',
-
-    #tags
-    'taggit',
-
-    #debugging tool
-    'silk'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "users.apps.UsersConfig",
+    "users_auth.apps.UsersAuthConfig",
+    "languages.apps.LanguagesConfig",
+    "topics.apps.TopicsConfig",
+    "integration.apps.IntegrationConfig",
+    "folders.apps.FoldersConfig",
+    "modules.apps.ModulesConfig",
+    "cards.apps.CardsConfig",
+    "abstracts.apps.AbstractsConfig",
+    "interactions.apps.InteractionsConfig",
+    "generic_status.apps.GenericStatusConfig",
+    "common.apps.CommonConfig",
+    # docs
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+    # rest framework
+    "rest_framework",
+    "rest_framework.authtoken",
+    # dj-rest-auth
+    "dj_rest_auth",
+    # with social auth
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "dj_rest_auth.registration",
+    # tags
+    "taggit",
+    # debugging tool
+    "silk",
 ]
 
 SITE_ID = 1
@@ -170,37 +161,39 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Media
+# Media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-#Celery
+# Celery
 CELERY_BROKER_URL = f"amqp://{config('RABBITMQ_USER')}:{config('RABBITMQ_PASS')}@localhost:5672//"
 
-#Users
+# Users
 AUTH_USER_MODEL = "users.User"
 
-#Rest Framework
+# Rest Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
-#Auth
+# Auth
 REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_HTTPONLY': False,
-    'OLD_PASSWORD_FIELD_ENABLED': True,
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
+    "OLD_PASSWORD_FIELD_ENABLED": True,
 }
 
-#JWT
+# JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -210,7 +203,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 }
 
-#Allauth
+# Allauth
 ACCOUNT_ADAPTER = 'users_auth.adapters.CustomAccountAdapter'
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
@@ -222,16 +215,16 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-#Email backend
+# Email backend
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     pass
     #TODO: setup smtp email backend
 
-#Frontend
+# Frontend
 EMAIL_VERIFICATION_URL = 'http://localhost:3000/verify-email/'
 
-#Fernet
+# Fernet
 FERNET_SECRET_KEY = config('FERNET_SECRET_KEY')
 fernet = Fernet(FERNET_SECRET_KEY.encode())

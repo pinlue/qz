@@ -18,36 +18,30 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework import permissions
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="API Documentation",
-        default_version='v1',
-        description="Qz swagger docs for API",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("api/v1/auth/", include("users_auth.urls")),
+    path("api/v1/languages/", include("languages.urls")),
+    path("api/v1/topics/", include("topics.urls")),
+    path("api/v1/deepl/", include("integration.urls")),
+    path("api/v1/folders/", include("folders.urls")),
+    path("api/v1/", include("modules.urls")),
 
-    path('api/v1/auth/', include('users_auth.urls')),
-    path('api/v1/languages/', include('languages.urls')),
-    path('api/v1/topics/', include('topics.urls')),
-    path('api/v1/deepl/', include('integration.urls')),
-    path('api/v1/folders/', include('folders.urls')),
-    path('api/v1/', include('modules.urls')),
+    # docs
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
+    ),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 
-    #docs
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
-    #debugging tool
-    path('silk/', include('silk.urls', namespace='silk')),
+    # debugging tool
+    path("silk/", include("silk.urls", namespace="silk")),
 ]
 
 if settings.DEBUG:

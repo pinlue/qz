@@ -1,6 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -8,6 +6,7 @@ from rest_framework.response import Response
 from common.permissions import IsObjOwner, IsObjAdmin
 from generic_status.models import Learn, Rate, Perm
 from generic_status.serializators import RateSerializer, PermSerializer, LearnSerializer
+from generic_status.shemas import post_relation_schema, delete_relation_schema
 
 
 class BaseUserRelationMixin:
@@ -57,22 +56,9 @@ class LearnMixin(BaseUserRelationMixin):
     relation_model = Learn
     serializer_class = LearnSerializer
 
-    @swagger_auto_schema(
-        method="post",
-        request_body=LearnSerializer,
-        responses={
-            201: openapi.Response("Created"),
-            200: openapi.Response("Updated"),
-        },
-    )
-    @swagger_auto_schema(
-        method="delete",
-        responses={
-            204: openapi.Response("Deleted"),
-            404: openapi.Response("Relation not found"),
-        },
-    )
-    @action(detail=True, methods=['post', 'delete'])
+    @post_relation_schema(LearnSerializer)
+    @delete_relation_schema()
+    @action(detail=True, methods=["post", "delete"])
     def learns(self, request, pk=None, **kwargs):
         return self.handle_relation_action(request, pk, **kwargs)
 
@@ -86,21 +72,8 @@ class RateMixin(BaseUserRelationMixin):
     relation_model = Rate
     serializer_class = RateSerializer
 
-    @swagger_auto_schema(
-        method="post",
-        request_body=RateSerializer,
-        responses={
-            201: openapi.Response("Created"),
-            200: openapi.Response("Updated"),
-        },
-    )
-    @swagger_auto_schema(
-        method="delete",
-        responses={
-            204: openapi.Response("Deleted"),
-            404: openapi.Response("Relation not found"),
-        },
-    )
+    @post_relation_schema(RateSerializer)
+    @delete_relation_schema()
     @action(detail=True, methods=['post', 'delete'])
     def rates(self, request, pk=None, **kwargs):
         return self.handle_relation_action(request, pk, **kwargs)
@@ -115,21 +88,8 @@ class PermMixin(BaseUserRelationMixin):
     relation_model = Perm
     serializer_class = PermSerializer
 
-    @swagger_auto_schema(
-        method="post",
-        request_body=PermSerializer,
-        responses={
-            201: openapi.Response("Created"),
-            200: openapi.Response("Updated"),
-        },
-    )
-    @swagger_auto_schema(
-        method="delete",
-        responses={
-            204: openapi.Response("Deleted"),
-            404: openapi.Response("Relation not found"),
-        },
-    )
+    @post_relation_schema(PermSerializer)
+    @delete_relation_schema()
     @action(detail=True, methods=['post', 'delete'])
     def perms(self, request, pk=None, **kwargs):
         return self.handle_relation_action(request, pk, **kwargs)
@@ -141,4 +101,3 @@ class PermMixin(BaseUserRelationMixin):
 
     def get_target_user(self, request, serializer):
         return serializer.validated_data['user']
-

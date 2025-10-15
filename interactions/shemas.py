@@ -1,21 +1,22 @@
-from drf_yasg import openapi
-from drf_yasg.inspectors import SwaggerAutoSchema
+from drf_spectacular.utils import extend_schema
 
 
-class ToggleRelationSchema(SwaggerAutoSchema):
-    def get_operation(self, operation_keys):
-        operation = super().get_operation(operation_keys)
-        relation_name = getattr(self.view, "relation_name", "relation")
+toggle_post_schema = extend_schema(
+    methods=["POST"],
+    request=None,
+    responses={
+        201: None,
+        403: None,
+        404: None,
+    },
+)
 
-        if self.method == 'POST':
-            operation.description = f"Create a {relation_name} relation for the object."
-            operation.responses = {
-                201: openapi.Response(description=f"{relation_name.capitalize()} created"),
-                200: openapi.Response(description=f"{relation_name.capitalize()} already exists"),
-            }
-        elif self.method == 'DELETE':
-            operation.description = f"Remove a {relation_name} relation from the object."
-            operation.responses = {
-                200: openapi.Response(description=f"{relation_name.capitalize()} removed"),
-            }
-        return operation
+toggle_delete_schema = extend_schema(
+    methods=["DELETE"],
+    request=None,
+    responses={
+        200: None,
+        403: None,
+        404: None,
+    },
+)

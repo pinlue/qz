@@ -1,7 +1,10 @@
 import deepl
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, permissions, status
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiResponse,
+    inline_serializer,
+)
+from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,6 +15,7 @@ from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, T
     DeepLApiKeyUpdateSerializer
 
 
+@extend_schema(tags=["deepl"])
 class DeepLApiKeyViewSet(viewsets.ModelViewSet):
     queryset = DeepLApiKey.objects.all()
 
@@ -32,55 +36,45 @@ class DeepLApiKeyViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
+@extend_schema(
+    tags=["deepl"],
+    request=TranslationSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Successful translation",
+            response=inline_serializer(
+                name="TranslationsResponse",
+                fields={
+                    "translations": serializers.ListField(
+                        child=serializers.CharField()
+                    )
+                },
+            ),
+        ),
+        502: OpenApiResponse(
+            description="Translation failed",
+            response=inline_serializer(
+                name="EmptyResponse",
+                fields={}
+            ),
+        ),
+    },
+)
 class DeepLTranslationsView(APIView):
     permission_classes = [permissions.IsAuthenticated, HasAcceptedDeepLApiKeyView]
 
-    @swagger_auto_schema(
-        request_body=TranslationSerializer,
-        responses={
-            200: openapi.Response(
-                description="Successful translation",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        "translations": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(type=openapi.TYPE_STRING)
-                        )
-                    }
-                ),
-                examples={
-                    "application/json": {
-                        "translations": ["translated_word1", "translated_word2"]
-                    }
-                }
-            ),
-            502: openapi.Response(
-                description="Translation failed",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        "detail": openapi.Schema(type=openapi.TYPE_STRING)
-                    }
-                ),
-                examples={
-                    "application/json": {"detail": "Translation failed."}
-                }
-            ),
-        }
-    )
     def post(self, request):
         serializer = TranslationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         words = serializer.validated_data['words']
-        target_lang = serializer.validated_data['target_lang']
+        to_lang = serializer.validated_data['to_lang']
 
         translator = deepl.Translator(request.user.deeplapikey.api_key)
         try:
             translations = [
-                translator.translate_text(word, target_lang=target_lang).text
+                translator.translate_text(word, target_lang=to_lang).text
                 for word in words
             ]
         except Exception:
-            return Response({'detail': 'Translation failed.'}, status=status.HTTP_502_BAD_GATEWAY)
+            return Response(status=status.HTTP_502_BAD_GATEWAY)
         return Response({'translations': translations})

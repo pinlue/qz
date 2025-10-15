@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 from languages.models import Language
 from .models import DeepLApiKey
@@ -45,7 +46,7 @@ class DeepLApiKeySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeepLApiKey
-        fields = ['id', 'status', 'remaining_characters']
+        fields = ['id', 'status', 'user', 'remaining_characters']
 
     def get_remaining_characters(self, obj) -> int | None:
         try:
@@ -63,9 +64,9 @@ class TranslationSerializer(serializers.Serializer):
     words = serializers.ListField(
         child=serializers.CharField(), min_length=1
     )
-    target_lang = serializers.CharField()
+    to_lang = serializers.CharField(validators=[RegexValidator(regex=r'^[A-Z]{2,3}$')])
 
-    def validate_target_lang(self, value):
+    def validate_to_lang(self, value):
         if not Language.objects.filter(code=value).exists():
             raise serializers.ValidationError("Language not supported.")
         return value

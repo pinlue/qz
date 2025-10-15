@@ -1,8 +1,10 @@
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, permissions
 from .models import Topic
 from .serializators import TopicSerializer
 
 
+@extend_schema(tags=["topics"])
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer

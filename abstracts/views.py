@@ -1,5 +1,4 @@
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -10,12 +9,11 @@ from common.permissions import IsObjOwner, IsObjAdmin
 
 
 class TagMixin:
-    @swagger_auto_schema(
-        method="post",
-        request_body=TagsSerializer,
+    @extend_schema(
+        request=TagsSerializer,
         responses={
-            201: "Tags added successfully",
-            400: "Validation Error",
+            201: None,
+            400: None,
         },
     )
     @action(detail=True, methods=['post'])
@@ -27,51 +25,51 @@ class TagMixin:
         tags = serializer.validated_data['tags']
         obj.tags.add(*tags)
 
-        return Response({"tags": list(obj.tags.names())}, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
-    @swagger_auto_schema(
-        method="delete",
-        manual_parameters=[
-            openapi.Parameter(
-                "tag_id",
-                openapi.IN_PATH,
-                description="ID of the tag to remove",
-                type=openapi.TYPE_INTEGER,
-                required=True
+
+    @extend_schema(
+        methods=["DELETE"],
+        parameters=[
+            OpenApiParameter(
+                name="tag_id",
+                location='path',
+                type=int,
+                required=True,
             )
         ],
         responses={
-            204: "Tag removed successfully",
-            404: "Tag not found",
-        },
+            204: None,
+            404: None,
+        }
     )
-    @action(detail=True, methods=['delete'], url_path='tags/(?P<tag_id>[0-9]+)')
+    @action(detail=True, methods=["delete"], url_path="tags/(?P<tag_id>[0-9]+)")
     def remove_tag(self, request, pk=None, tag_id=None, **kwargs):
         obj = self.get_object()
         try:
             tag = Tag.objects.get(id=tag_id)
         except Tag.DoesNotExist:
-            return Response({"error": "Tag not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         obj.tags.remove(tag)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_permissions(self):
-        if self.action in ['tags', 'remove_tag']:
+        if self.action in {'tags', 'remove_tag'}:
             return [(IsObjOwner | IsObjAdmin)()]
         return super().get_permissions()
 
 
 class VisibleMixin:
-    @swagger_auto_schema(
-        method='patch',
-        request_body=VisibleSerializer,
+    @extend_schema(
+        request=VisibleSerializer,
         responses={
-            200: "Visibility updated successfully",
-            400: "Validation error"
+            200: None,
+            400: None,
         },
+        methods=["PATCH"],
     )
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=["patch"])
     def visibles(self, request, pk=None, **kwargs):
         obj = self.get_object()
         serializer = VisibleSerializer(data=request.data)
@@ -86,5 +84,3 @@ class VisibleMixin:
         if self.action == 'visibles':
             return [(IsObjOwner | IsObjAdmin)()]
         return super().get_permissions()
-
-
