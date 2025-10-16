@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "interactions.apps.InteractionsConfig",
     "generic_status.apps.GenericStatusConfig",
     "common.apps.CommonConfig",
+    "io_manager.apps.IoManagerConfig",
     # docs
     "drf_spectacular",
     "drf_spectacular_sidecar",
