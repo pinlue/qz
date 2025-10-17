@@ -1,4 +1,5 @@
 from django.urls import path
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
@@ -18,17 +19,25 @@ modules_router.register(r'cards', CardViewSet, basename='module-cards')
 generic_urls = [
     path(
         'modules/<int:pk>/import/',
-        GenericImportView.as_view(
-            strategy=ModuleCardsImporter,
-            model=Module,
+        extend_schema_view(
+            post=extend_schema(tags=["modules"])
+        )(
+            GenericImportView.as_view(
+                strategy=ModuleCardsImporter,
+                model=Module,
+            )
         ),
         name='module-cards-import'
     ),
     path(
         'modules/<int:pk>/export/',
-        GenericExportView.as_view(
-            strategy=ModuleCardsExporter,
-            model=Module,
+        extend_schema_view(
+            get=extend_schema(tags=["modules"])
+        )(
+            GenericExportView.as_view(
+                strategy=ModuleCardsExporter,
+                model=Module,
+            )
         ),
         name='module-cards-export'
     ),

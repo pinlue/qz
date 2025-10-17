@@ -1,8 +1,14 @@
 from django.core.exceptions import ValidationError
+from rest_framework import permissions
 
+from abstracts.permissions import IsObjPublic
+from common.permissions import IsObjAdmin, IsObjOwner, partial_cls
+from generic_status.permissions import HasObjRoles
 from modules.models import Module
 
 class ModuleCardsExporter:
+    perms = [(IsObjPublic | IsObjAdmin | IsObjOwner | partial_cls(HasObjRoles, roles=['editor', 'viewer']))()]
+
     def __init__(self, module: Module):
         self.module = module
 
@@ -21,6 +27,8 @@ class ModuleCardsExporter:
 
 
 class ModuleCardsImporter:
+    perms = [permissions.IsAuthenticated()]
+
     def __init__(self, module: Module):
         self.module = module
 

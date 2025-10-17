@@ -1,4 +1,10 @@
 from django.http import HttpResponse
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample,
+    OpenApiResponse,
+)
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser
@@ -9,6 +15,23 @@ from io_manager.bridge import ModelIOBridge
 from io_manager.formats import FormatRegistry
 
 
+@extend_schema(
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "file": {"type": "string", "format": "binary"},
+            },
+            "required": ["file"],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description="Import successful"),
+        400: OpenApiResponse(description="Invalid format or import error"),
+        404: OpenApiResponse(description="Object not found"),
+        500: OpenApiResponse(description="Strategy or model not defined"),
+    },
+)
 class GenericImportView(APIView):
     parser_classes = [MultiPartParser]
     strategy = None
@@ -24,6 +47,8 @@ class GenericImportView(APIView):
 
         instance = get_object_or_404(self.model, pk=pk) if pk else None
 
+        self.check_object_permissions(request, instance)
+
         ext = file.name.split(".")[-1].lower()
         file_format = FormatRegistry.get(ext)
         if not file_format:
@@ -38,7 +63,37 @@ class GenericImportView(APIView):
 
         return Response({"detail": "Import successful."}, status=200)
 
+    def get_permissions(self):
+        return self.strategy.perms
 
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="file_format",
+            description="File format to export data as (`csv` or `xlsx`).",
+            required=False,
+            type=str,
+            examples=[
+                OpenApiExample("CSV format", value="csv"),
+                OpenApiExample("Excel format", value="xlsx"),
+            ],
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(
+            examples=[
+                OpenApiExample(
+                    "CSV Example",
+                    value="original,translation\nHello,Hi\nBye,Goodbye",
+                ),
+            ],
+        ),
+        400: OpenApiResponse(description="Invalid format or export error"),
+        404: OpenApiResponse(description="Object not found"),
+        500: OpenApiResponse(description="Strategy not defined"),
+    },
+)
 class GenericExportView(APIView):
     strategy = None
     model = None
@@ -61,6 +116,8 @@ class GenericExportView(APIView):
 
         instance = get_object_or_404(self.model, pk=pk)
 
+        self.check_object_permissions(request, instance)
+
         try:
             strategy = self.strategy(instance)
             bridge = ModelIOBridge(strategy, file_format)
@@ -78,3 +135,6 @@ class GenericExportView(APIView):
         filename = f"{self.model.__name__.lower()}_export.{fmt}"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
+
+    def get_permissions(self):
+        return self.strategy.perms
