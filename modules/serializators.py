@@ -3,6 +3,7 @@ from rest_framework import serializers
 from cards.serializators import CardShortSerializer, CardInputSerializer
 from languages.serializators import LanguageShortSerializer, LanguageSerializer
 from modules.models import Module
+from topics.models import Topic
 from topics.serializators import TopicSerializer
 from users.serializators import UserPublicSerializer
 
@@ -52,3 +53,25 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module
         fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards', 'cards_count']
+
+
+class ModuleMergeSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    topic = serializers.PrimaryKeyRelatedField(queryset=Topic.objects.all())
+    modules = serializers.ListField(
+        child=serializers.IntegerField(),
+        min_length=2,
+        max_length=5
+    )
+
+    def validate_modules(self, module_ids):
+        modules = list(Module.objects.filter(id__in=module_ids))
+        if len(modules) != len(module_ids):
+            raise serializers.ValidationError("Some modules were not found.")
+
+        lang_from_set = {m.lang_from_id for m in modules}
+        lang_to_set = {m.lang_to_id for m in modules}
+        if len(lang_from_set) > 1 or len(lang_to_set) > 1:
+            raise serializers.ValidationError("All modules must have the same languages.")
+
+        return modules

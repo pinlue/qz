@@ -7,8 +7,7 @@ from cards.views import CardViewSet
 from io_manager.views import GenericImportView, GenericExportView
 from .io import ModuleCardsImporter, ModuleCardsExporter
 from .models import Module
-from .views import ModuleViewSet
-
+from .views import ModuleViewSet, ModuleMergeView
 
 router = SimpleRouter()
 router.register(r'modules', ModuleViewSet, basename='modules')
@@ -43,4 +42,8 @@ generic_urls = [
     ),
 ]
 
-urlpatterns = generic_urls + router.urls + modules_router.urls
+module_merge_urls = [
+    path("modules/merge/", ModuleMergeView.as_view(), name="modules-merge"),
+]
+
+urlpatterns = module_merge_urls + generic_urls + router.urls + modules_router.urls
