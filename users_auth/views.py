@@ -1,7 +1,12 @@
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+
+from .clients import CustomOAuth2Client
 from .serializators import EmailChangeSerializer, EmailVerifySerializer
 from allauth.account.models import EmailAddress
 
@@ -71,3 +76,15 @@ class EmailVerifyView(APIView):
             "primary": email_address.primary,
             "verified": email_address.verified,
         }, status=status.HTTP_200_OK)
+
+
+class GitHubLoginView(SocialLoginView):
+    adapter_class = GitHubOAuth2Adapter
+    callback_url = "http://127.0.0.1:8000/api/v1/auth/login/github/callback/"
+    client_class = CustomOAuth2Client
+
+
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://127.0.0.1:8000/api/v1/auth/login/google/callback/"
+    client_class = CustomOAuth2Client
