@@ -12,20 +12,18 @@ from interactions.shemas import (
 
 
 class RelationMixin:
-    relation_model = None
-
     def toggle(self, request, pk=None, **kwargs):
         obj = self.get_object()
         content_type = ContentType.objects.get_for_model(obj)
         if request.method == 'POST':
-            self.relation_model.objects.get_or_create(
+            self.get_relation_model().objects.get_or_create(
                 user=request.user,
                 content_type=content_type,
                 object_id=obj.pk
             )
             return Response(status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
-            self.relation_model.objects.filter(
+            self.get_relation_model().objects.filter(
                 user=request.user,
                 content_type=content_type,
                 object_id=obj.pk
@@ -34,7 +32,10 @@ class RelationMixin:
 
 
 class PinMixin(RelationMixin, InteractionsPermsMixin):
-    relation_model = Pin
+    def get_relation_model(self):
+        if self.action == "pins":
+            return Pin
+        return super().get_relation_model()
 
     @toggle_post_schema
     @toggle_delete_schema
@@ -43,7 +44,11 @@ class PinMixin(RelationMixin, InteractionsPermsMixin):
         return super().toggle(request, pk=pk)
 
 class SaveMixin(RelationMixin, InteractionsPermsMixin):
-    relation_model = Save
+
+    def get_relation_model(self):
+        if self.action == "saves":
+            return Save
+        return super().get_relation_model()
 
     @toggle_post_schema
     @toggle_delete_schema

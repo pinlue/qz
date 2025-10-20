@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 
 from cards.models import Card
-from cards.serializators import CardSerializer
+from cards.serializers import CardSerializer
 from common.decorators import swagger_safe_permissions
 from common.permissions import (
     RelatedObjPermissionProxy,

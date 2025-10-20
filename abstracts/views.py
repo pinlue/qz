@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from taggit.models import Tag
 
-from abstracts.serializators import TagsSerializer, VisibleSerializer
+from abstracts.serializers import TagsSerializer, VisibleSerializer
 from common.permissions import IsObjOwner, IsObjAdmin
 
 

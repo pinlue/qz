@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from common.permissions import IsObjOwner, IsObjAdmin
 from .models import DeepLApiKey
 from .permissions import HasAcceptedDeepLApiKeyView
-from .serializators import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationSerializer, \
+from .serializers import DeepLApiKeySerializer, DeepLApiKeyCreateSerializer, TranslationSerializer, \
     DeepLApiKeyUpdateSerializer
 
 

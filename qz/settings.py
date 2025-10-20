@@ -196,6 +196,7 @@ REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,
     "OLD_PASSWORD_FIELD_ENABLED": True,
+    'USER_DETAILS_SERIALIZER': 'users.serializers.UserPrivateSerializer',
 }
 
 # JWT

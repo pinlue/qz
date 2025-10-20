@@ -21,7 +21,7 @@ from generic_status.permissions import PermissionIncludedLink, HasObjRoles
 from generic_status.views import RateMixin, PermMixin
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
-from modules.serializators import (
+from modules.serializers import (
     ModuleListSerializer,
     ModuleDetailSerializer,
     ModuleCreateUpdateSerializer,
@@ -39,6 +39,7 @@ class ModuleViewSet(
     PermMixin,
     viewsets.ModelViewSet,
 ):
+    serializer_class = ModuleListSerializer
     list_action_chain_links = [
         PublicIncludedLink,
         OwnerIncludedLink,
@@ -62,7 +63,7 @@ class ModuleViewSet(
             return ModuleDetailSerializer
         elif self.action in {"create", "update", "partial_update"}:
             return ModuleCreateUpdateSerializer
-        return ModuleListSerializer
+        return super().get_serializer_class()
 
     def get_permissions(self):
         if self.action == "create":

@@ -16,9 +16,10 @@ from common.permissions import (
     IsObjOwner,
     get_accessible_q,
     IsObjAdmin,
+    OwnerIncludedLink,
 )
 from folders.models import Folder
-from folders.serializators import (
+from folders.serializers import (
     FolderListSerializer,
     FolderDetailSerializer,
     FolderCreateUpdateSerializer,
@@ -35,7 +36,7 @@ from modules.views import ModuleViewSet
 
 @extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
-    list_action_chain_links = [PublicIncludedLink]
+    list_action_chain_links = [PublicIncludedLink, OwnerIncludedLink]
 
     def get_queryset(self):
         base_qs = Folder.objects.select_related("user")

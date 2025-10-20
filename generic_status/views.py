@@ -5,14 +5,11 @@ from rest_framework.response import Response
 
 from common.permissions import IsObjOwner, IsObjAdmin
 from generic_status.models import Learn, Rate, Perm
-from generic_status.serializators import RateSerializer, PermSerializer, LearnSerializer
+from generic_status.serializers import RateSerializer, PermSerializer, LearnSerializer
 from generic_status.shemas import post_relation_schema, delete_relation_schema
 
 
 class BaseUserRelationMixin:
-    relation_model = None
-    serializer_class = None
-
     def get_target_user(self, request, serializer):
         return request.user
 
@@ -25,19 +22,19 @@ class BaseUserRelationMixin:
         }
 
     def _create_or_update_relation(self, user, obj, data):
-        return self.relation_model.objects.update_or_create(
+        return self.get_relation_model().objects.update_or_create(
             **self.get_queryset_filter(user, obj),
             defaults=data
         )
 
     def _delete_relation(self, user, obj):
-        qs = self.relation_model.objects.filter(**self.get_queryset_filter(user, obj))
+        qs = self.get_relation_model().objects.filter(**self.get_queryset_filter(user, obj))
         deleted, _ = qs.delete()
         return deleted
 
     def handle_relation_action(self, request, pk=None, **kwargs):
         obj = self.get_object()
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user = self.get_target_user(request, serializer)
@@ -53,9 +50,6 @@ class BaseUserRelationMixin:
 
 
 class LearnMixin(BaseUserRelationMixin):
-    relation_model = Learn
-    serializer_class = LearnSerializer
-
     @post_relation_schema(LearnSerializer)
     @delete_relation_schema()
     @action(detail=True, methods=["post", "delete"])
@@ -67,11 +61,18 @@ class LearnMixin(BaseUserRelationMixin):
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
 
+    def get_serializer_class(self):
+        if self.action == "learns":
+            return LearnSerializer
+        return super().get_serializer_class()
+
+    def get_relation_model(self):
+        if self.action == "learns":
+            return Learn
+        return super().get_relation_model()
+
 
 class RateMixin(BaseUserRelationMixin):
-    relation_model = Rate
-    serializer_class = RateSerializer
-
     @post_relation_schema(RateSerializer)
     @delete_relation_schema()
     @action(detail=True, methods=['post', 'delete'])
@@ -83,11 +84,18 @@ class RateMixin(BaseUserRelationMixin):
             return [(~IsObjOwner)()]
         return super().get_permissions()
 
+    def get_serializer_class(self):
+        if self.action == "rates":
+            return RateSerializer
+        return super().get_serializer_class()
+
+    def get_relation_model(self):
+        if self.action == "rates":
+            return Rate
+        return super().get_relation_model()
+
 
 class PermMixin(BaseUserRelationMixin):
-    relation_model = Perm
-    serializer_class = PermSerializer
-
     @post_relation_schema(PermSerializer)
     @delete_relation_schema()
     @action(detail=True, methods=['post', 'delete'])
@@ -98,6 +106,16 @@ class PermMixin(BaseUserRelationMixin):
         if self.action == 'perms':
             return [(IsObjAdmin | IsObjOwner)()]
         return super().get_permissions()
+
+    def get_serializer_class(self):
+        if self.action == "perms":
+            return PermSerializer
+        return super().get_serializer_class()
+
+    def get_relation_model(self):
+        if self.action == "perms":
+            return Perm
+        return super().get_relation_model()
 
     def get_target_user(self, request, serializer):
         return serializer.validated_data['user']

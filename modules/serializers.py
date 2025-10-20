@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from cards.serializators import CardShortSerializer, CardInputSerializer
-from languages.serializators import LanguageShortSerializer, LanguageSerializer
+from cards.serializers import CardShortSerializer, CardInputSerializer
+from languages.serializers import LanguageShortSerializer, LanguageSerializer
 from modules.models import Module
 from topics.models import Topic
-from topics.serializators import TopicSerializer
-from users.serializators import UserPublicSerializer
+from topics.serializers import TopicSerializer
+from users.serializers import UserPublicSerializer
 
 
 class ModuleListSerializer(serializers.ModelSerializer):
@@ -18,7 +18,16 @@ class ModuleListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards_count']
+        fields = [
+            "id",
+            "name",
+            "description",
+            "user",
+            "lang_from",
+            "lang_to",
+            "topic",
+            "cards_count",
+        ]
 
 
 class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
@@ -26,18 +35,34 @@ class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['id', 'name', 'description', 'user', 'topic', 'lang_from', 'lang_to', 'cards']
-        read_only_fields = ['user']
+        fields = [
+            "id",
+            "name",
+            "description",
+            "user",
+            "topic",
+            "lang_from",
+            "lang_to",
+            "cards",
+        ]
+        read_only_fields = ["user"]
 
     def create(self, validated_data):
-        cards_data = validated_data.pop('cards', [])
+        cards_data = validated_data.pop("cards", [])
         module = Module.objects.create(**validated_data)
         if cards_data:
             from cards.models import Card
-            Card.objects.bulk_create([
-                Card(original=card['original'], translation=card['translation'], module=module)
-                for card in cards_data
-            ])
+
+            Card.objects.bulk_create(
+                [
+                    Card(
+                        original=card["original"],
+                        translation=card["translation"],
+                        module=module,
+                    )
+                    for card in cards_data
+                ]
+            )
         return module
 
 
@@ -52,16 +77,24 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['id', 'name', 'description', 'user', 'lang_from', 'lang_to', 'topic', 'cards', 'cards_count']
+        fields = [
+            "id",
+            "name",
+            "description",
+            "user",
+            "lang_from",
+            "lang_to",
+            "topic",
+            "cards",
+            "cards_count",
+        ]
 
 
 class ModuleMergeSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     topic = serializers.PrimaryKeyRelatedField(queryset=Topic.objects.all())
     modules = serializers.ListField(
-        child=serializers.IntegerField(),
-        min_length=2,
-        max_length=5
+        child=serializers.IntegerField(), min_length=2, max_length=5
     )
 
     def validate_modules(self, module_ids):
@@ -72,6 +105,8 @@ class ModuleMergeSerializer(serializers.Serializer):
         lang_from_set = {m.lang_from_id for m in modules}
         lang_to_set = {m.lang_to_id for m in modules}
         if len(lang_from_set) > 1 or len(lang_to_set) > 1:
-            raise serializers.ValidationError("All modules must have the same languages.")
+            raise serializers.ValidationError(
+                "All modules must have the same languages."
+            )
 
         return modules

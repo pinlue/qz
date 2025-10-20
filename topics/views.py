@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, permissions
 from .models import Topic
-from .serializators import TopicSerializer
+from .serializers import TopicSerializer
 
 
 @extend_schema(tags=["topics"])

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from modules.serializators import ModuleListSerializer
+from modules.serializers import ModuleListSerializer
+from users.serializers import UserPublicSerializer
 from .models import Folder
 
 
@@ -12,6 +13,7 @@ class FolderCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class FolderListSerializer(serializers.ModelSerializer):
+    user = UserPublicSerializer(read_only=True)
     modules_count = serializers.IntegerField(read_only=True)
 
     class Meta:

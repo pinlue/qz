@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 from .models import Language
-from .serializators import LanguageSerializer
+from .serializers import LanguageSerializer
 
 
 @extend_schema(tags=["languages"])

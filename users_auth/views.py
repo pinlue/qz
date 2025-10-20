@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 
 from .clients import CustomOAuth2Client
-from .serializators import EmailChangeSerializer, EmailVerifySerializer
+from .serializers import EmailChangeSerializer, EmailVerifySerializer
 from allauth.account.models import EmailAddress
 
 from .tasks import send_verification_email, schedule_email_deletion
