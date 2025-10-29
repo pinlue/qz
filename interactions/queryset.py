@@ -1,9 +1,8 @@
-from django.db.models import QuerySet, When, Case, Value, BooleanField
+from django.db.models import When, Case, Value, BooleanField
 
 
 class BaseAnnotateRelationMixin:
     def _annotate_flag(self, user, field_name, related_name):
-        cls = type(self)
         return self.annotate(
             **{
                 field_name: Case(

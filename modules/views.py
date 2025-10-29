@@ -55,10 +55,10 @@ class ModuleViewSet(
         if self.action == "retrieve":
             qs = qs.prefetch_related(Prefetch(
             "cards",
-            queryset=Card.objects.all().with_ann_saved(user)
-        )).with_ann_saved(user).with_ann_pinned(user)
+            queryset=Card.objects.all().with_ann_saved(user).with_ann_learned(user)
+        )).with_ann_saved(user).with_ann_pinned(user).with_ann_rate(user).with_ann_perm(user)
         if self.action == "list":
-            qs = qs.filter(get_accessible_q(self.request, self.list_action_chain_links)).with_ann_saved(user).with_ann_pinned(user)
+            qs = qs.filter(get_accessible_q(self.request, self.list_action_chain_links)).with_ann_saved(user).with_ann_pinned(user).with_ann_perm(user)
         return qs
 
     def get_serializer_class(self):

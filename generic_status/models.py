@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 from common.models import UserObjectRelation
@@ -28,3 +29,24 @@ class Perm(UserObjectRelation):
 
     class Meta:
         unique_together = ('user', 'content_type', 'object_id', 'perm')
+
+
+class Learnable(models.Model):
+    learns = GenericRelation("generic_status.Learn")
+
+    class Meta:
+        abstract = True
+
+
+class Rateable(models.Model):
+    rates = GenericRelation("generic_status.Rate")
+
+    class Meta:
+        abstract = True
+
+
+class Permable(models.Model):
+    perms = GenericRelation("generic_status.Perm")
+
+    class Meta:
+        abstract = True

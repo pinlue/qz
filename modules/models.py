@@ -3,13 +3,15 @@ from rest_framework.exceptions import ValidationError
 
 from abstracts.models import Tag, Visible
 from common.queryset import build_manager
+from generic_status.models import Permable, Rateable
+from generic_status.queryset import AnnotatePermMixin, AnnotateRatedMixin
 from interactions.models import Savable, Pinnable
 from interactions.queryset import AnnotateSavedMixin, AnnotatePinnedMixin
 from users.models import User
 
 
-class Module(Tag, Visible, Savable, Pinnable, models.Model):
-    objects = build_manager(AnnotateSavedMixin, AnnotatePinnedMixin)
+class Module(Tag, Visible, Savable, Pinnable, Permable, Rateable, models.Model):
+    objects = build_manager(AnnotateSavedMixin, AnnotatePinnedMixin, AnnotatePermMixin, AnnotateRatedMixin)
 
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)

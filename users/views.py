@@ -87,7 +87,7 @@ class UserViewSet(
                             request=self.request,
                             links=ModuleViewSet.list_action_chain_links,
                         )
-                    ).with_ann_saved(user).with_ann_pinned(user).prefetch_related("tags", "cards"),
+                    ).with_ann_saved(user).with_ann_pinned(user).with_ann_perm(user).prefetch_related("tags", "cards"),
                 ),
             ).annotate(
                 public_modules_count=Count(

@@ -15,9 +15,11 @@ class CardSerializer(serializers.ModelSerializer):
 class CardShortSerializer(serializers.ModelSerializer):
     saved = serializers.BooleanField()
 
+    learned_status = serializers.CharField()
+
     class Meta:
         model = Card
-        fields = ["id", "original", "translation", "saved"]
+        fields = ["id", "original", "translation", "saved", "learned_status"]
 
 
 class CardInputSerializer(serializers.Serializer):

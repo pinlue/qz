@@ -19,6 +19,8 @@ class ModuleListSerializer(serializers.ModelSerializer):
     saved = serializers.BooleanField()
     pinned = serializers.BooleanField()
 
+    user_perm = serializers.CharField()
+
     class Meta:
         model = Module
         fields = [
@@ -31,7 +33,8 @@ class ModuleListSerializer(serializers.ModelSerializer):
             "topic",
             "cards_count",
             "saved",
-            "pinned"
+            "pinned",
+            "user_perm"
         ]
 
 
@@ -83,6 +86,9 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
     saved = serializers.BooleanField()
     pinned = serializers.BooleanField()
 
+    user_rate = serializers.CharField()
+    user_perm = serializers.CharField()
+
     class Meta:
         model = Module
         fields = [
@@ -96,7 +102,9 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
             "cards",
             "cards_count",
             "saved",
-            "pinned"
+            "pinned",
+            "user_rate",
+            "user_perm"
         ]
 
 

@@ -30,9 +30,11 @@ class UserModuleListSerializer(serializers.ModelSerializer):
     saved = serializers.BooleanField()
     pinned = serializers.BooleanField()
 
+    user_perm = serializers.CharField()
+
     class Meta:
         model = Module
-        fields = ["id", "user", "name", "tags", "cards_count", "saved", "pinned"]
+        fields = ["id", "user", "name", "tags", "cards_count", "saved", "pinned", "user_perm"]
 
 
 class UserPublicDetailSerializer(serializers.ModelSerializer):

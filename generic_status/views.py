@@ -118,4 +118,6 @@ class PermMixin(BaseUserRelationMixin):
         return super().get_relation_model()
 
     def get_target_user(self, request, serializer):
-        return serializer.validated_data['user']
+        if self.action == "perms":
+            return serializer.validated_data['user']
+        return super().get_target_user(request, serializer)

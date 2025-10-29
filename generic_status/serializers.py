@@ -5,11 +5,11 @@ from users.models import User
 
 
 class LearnSerializer(serializers.Serializer):
-    status = serializers.ChoiceField(choices=Learn.Status.choices)
+    learned = serializers.ChoiceField(choices=Learn.Status.choices)
 
 
 class RateSerializer(serializers.Serializer):
-    rating = serializers.ChoiceField(choices=Rate.Status.choices)
+    rate = serializers.ChoiceField(choices=Rate.Status.choices)
 
 
 class PermSerializer(serializers.Serializer):

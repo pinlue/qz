@@ -66,7 +66,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
                         "modules",
                         queryset=Module.objects.filter(modules_q).select_related(
                             "user", "topic", "lang_from", "lang_to"
-                        ).with_ann_saved(user).with_ann_pinned(user),
+                        ).with_ann_saved(user).with_ann_pinned(user).with_ann_perm(user),
                     )
                 ).with_ann_saved(user).with_ann_pinned(user)
         return base_qs
