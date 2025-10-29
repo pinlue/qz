@@ -52,21 +52,23 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
                     distinct=True,
                 )
             )
+            if self.action in {"list", "retrieve"}:
+                user = self.request.user
             if self.action == "list":
                 return qs.filter(
                     get_accessible_q(
                         request=self.request, links=self.list_action_chain_links
                     )
-                )
+                ).with_ann_saved(user).with_ann_pinned(user)
             if self.action == "retrieve":
                 return qs.prefetch_related(
                     Prefetch(
                         "modules",
                         queryset=Module.objects.filter(modules_q).select_related(
                             "user", "topic", "lang_from", "lang_to"
-                        ),
+                        ).with_ann_saved(user).with_ann_pinned(user),
                     )
-                )
+                ).with_ann_saved(user).with_ann_pinned(user)
         return base_qs
 
     def get_serializer_class(self):

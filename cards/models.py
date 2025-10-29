@@ -1,7 +1,13 @@
 from django.db import models
 
+from common.queryset import build_manager
+from interactions.models import Savable
+from interactions.queryset import AnnotateSavedMixin
 
-class Card(models.Model):
+
+class Card(Savable, models.Model):
+    objects = build_manager(AnnotateSavedMixin)
+
     original = models.CharField(max_length=100)
     translation = models.CharField(max_length=100)
 

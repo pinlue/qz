@@ -69,6 +69,7 @@ class UserViewSet(
         if self.action == "list":
             return qs
         if self.action == "retrieve":
+            user = self.request.user
             return qs.prefetch_related(
                 Prefetch(
                     "folders",
@@ -77,7 +78,7 @@ class UserViewSet(
                             request=self.request,
                             links=FolderViewSet.list_action_chain_links,
                         )
-                    ),
+                    ).with_ann_saved(user).with_ann_pinned(user),
                 ),
                 Prefetch(
                     "modules",
@@ -86,7 +87,7 @@ class UserViewSet(
                             request=self.request,
                             links=ModuleViewSet.list_action_chain_links,
                         )
-                    ).prefetch_related("tags", "cards"),
+                    ).with_ann_saved(user).with_ann_pinned(user).prefetch_related("tags", "cards"),
                 ),
             ).annotate(
                 public_modules_count=Count(

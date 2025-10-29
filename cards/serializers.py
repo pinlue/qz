@@ -4,16 +4,20 @@ from cards.models import Card
 
 
 class CardSerializer(serializers.ModelSerializer):
+    saved = serializers.BooleanField()
+
     class Meta:
         model = Card
-        fields = ["id", "original", "translation", "module"]
-        read_only_fields = ["id", "module"]
+        fields = ["id", "original", "translation", "module", "saved"]
+        read_only_fields = ["id", "module", "saved"]
 
 
 class CardShortSerializer(serializers.ModelSerializer):
+    saved = serializers.BooleanField()
+
     class Meta:
         model = Card
-        fields = ["id", "original", "translation"]
+        fields = ["id", "original", "translation", "saved"]
 
 
 class CardInputSerializer(serializers.Serializer):

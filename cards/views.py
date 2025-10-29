@@ -62,7 +62,7 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        return Card.objects.filter(module_id=self.kwargs.get("module_pk"))
+        return Card.objects.filter(module_id=self.kwargs.get("module_pk")).with_ann_saved(self.request.user)
 
     def perform_create(self, serializer):
         module_pk = self.kwargs.get("module_pk")

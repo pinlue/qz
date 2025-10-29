@@ -2,10 +2,15 @@ from django.db import models, transaction
 from rest_framework.exceptions import ValidationError
 
 from abstracts.models import Tag, Visible
+from common.queryset import build_manager
+from interactions.models import Savable, Pinnable
+from interactions.queryset import AnnotateSavedMixin, AnnotatePinnedMixin
 from users.models import User
 
 
-class Module(Tag, Visible, models.Model):
+class Module(Tag, Visible, Savable, Pinnable, models.Model):
+    objects = build_manager(AnnotateSavedMixin, AnnotatePinnedMixin)
+
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 

@@ -1,6 +1,6 @@
 from functools import partial
 
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -50,10 +50,15 @@ class ModuleViewSet(
         qs = Module.objects.select_related(
             "user", "topic", "lang_from", "lang_to"
         ).annotate(cards_count=Count("cards"))
+        if self.action in {"list", "retrieve"}:
+            user = self.request.user
         if self.action == "retrieve":
-            qs = qs.prefetch_related("cards")
+            qs = qs.prefetch_related(Prefetch(
+            "cards",
+            queryset=Card.objects.all().with_ann_saved(user)
+        )).with_ann_saved(user).with_ann_pinned(user)
         if self.action == "list":
-            qs = qs.filter(get_accessible_q(self.request, self.list_action_chain_links))
+            qs = qs.filter(get_accessible_q(self.request, self.list_action_chain_links)).with_ann_saved(user).with_ann_pinned(user)
         return qs
 
     def get_serializer_class(self):

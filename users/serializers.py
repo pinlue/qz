@@ -15,18 +15,24 @@ class UserPublicSerializer(serializers.ModelSerializer):
 class UserFolderListSerializer(serializers.ModelSerializer):
     modules_count = serializers.IntegerField(read_only=True)
 
+    saved = serializers.BooleanField()
+    pinned = serializers.BooleanField()
+
     class Meta:
         model = Folder
-        fields = ['id', 'user', 'name', 'color', 'modules_count']
+        fields = ['id', 'user', 'name', 'color', 'modules_count', 'saved', 'pinned']
 
 
 class UserModuleListSerializer(serializers.ModelSerializer):
     cards_count = serializers.IntegerField(read_only=True)
     tags = TagListSerializerField()
 
+    saved = serializers.BooleanField()
+    pinned = serializers.BooleanField()
+
     class Meta:
         model = Module
-        fields = ["id", "user", "name", "tags", "cards_count"]
+        fields = ["id", "user", "name", "tags", "cards_count", "saved", "pinned"]
 
 
 class UserPublicDetailSerializer(serializers.ModelSerializer):

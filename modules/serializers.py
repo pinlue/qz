@@ -16,6 +16,9 @@ class ModuleListSerializer(serializers.ModelSerializer):
 
     cards_count = serializers.IntegerField(read_only=True)
 
+    saved = serializers.BooleanField()
+    pinned = serializers.BooleanField()
+
     class Meta:
         model = Module
         fields = [
@@ -27,6 +30,8 @@ class ModuleListSerializer(serializers.ModelSerializer):
             "lang_to",
             "topic",
             "cards_count",
+            "saved",
+            "pinned"
         ]
 
 
@@ -75,6 +80,9 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
     cards = CardShortSerializer(many=True, read_only=True)
     cards_count = serializers.IntegerField(read_only=True)
 
+    saved = serializers.BooleanField()
+    pinned = serializers.BooleanField()
+
     class Meta:
         model = Module
         fields = [
@@ -87,6 +95,8 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
             "topic",
             "cards",
             "cards_count",
+            "saved",
+            "pinned"
         ]
 
 
