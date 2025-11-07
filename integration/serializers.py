@@ -1,4 +1,4 @@
-from django.core.validators import RegexValidator
+from deepl import DeepLException
 from rest_framework import serializers
 from languages.models import Language
 from .models import DeepLApiKey
@@ -10,17 +10,17 @@ class DeepLApiKeyCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeepLApiKey
-        fields = ['api_key']
+        fields = ["api_key"]
 
-    def validate(self, attrs):
-        user = self.context.get('request').user
+    def validate(self, attrs: dict) -> dict:
+        user = self.context.get("request").user
         if DeepLApiKey.objects.filter(user=user).exists():
-            raise serializers.ValidationError("Key already exists for this user.")
+            raise serializers.ValidationError("Key already exists for this user")
         return attrs
 
-    def create(self, validated_data):
-        user = self.context.get('request').user
-        api_key = validated_data['api_key']
+    def create(self, validated_data: dict) -> DeepLApiKey:
+        user = self.context.get("request").user
+        api_key = validated_data["api_key"]
         instance = DeepLApiKey(user=user)
         instance.api_key = api_key
         instance.save()
@@ -32,11 +32,11 @@ class DeepLApiKeyUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeepLApiKey
-        fields = ['api_key']
+        fields = ["api_key"]
 
-    def update(self, instance, validated_data):
-        instance.api_key = validated_data.get('api_key', instance.api_key)
-        instance.status = "PENDING"
+    def update(self, instance: DeepLApiKey, validated_data: dict) -> DeepLApiKey:
+        instance.api_key = validated_data.get("api_key", instance.api_key)
+        instance.status = DeepLApiKey.Status.PENDING
         instance.save()
         return instance
 
@@ -46,7 +46,7 @@ class DeepLApiKeySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeepLApiKey
-        fields = ['id', 'status', 'user', 'remaining_characters']
+        fields = ["id", "status", "user", "remaining_characters"]
 
     def get_remaining_characters(self, obj) -> int | None:
         try:
@@ -55,18 +55,11 @@ class DeepLApiKeySerializer(serializers.ModelSerializer):
             usage = translator.get_usage()
             if usage.character.limit is not None and usage.character.count is not None:
                 return usage.character.limit - usage.character.count
-        except Exception:
+        except DeepLException:
             pass
         return None
 
 
 class TranslationSerializer(serializers.Serializer):
-    words = serializers.ListField(
-        child=serializers.CharField(), min_length=1
-    )
-    to_lang = serializers.CharField(validators=[RegexValidator(regex=r'^[A-Z]{2,3}$')])
-
-    def validate_to_lang(self, value):
-        if not Language.objects.filter(code=value).exists():
-            raise serializers.ValidationError("Language not supported.")
-        return value
+    words = serializers.ListField(child=serializers.CharField(), min_length=1)
+    lang_to = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())

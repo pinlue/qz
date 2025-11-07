@@ -15,19 +15,20 @@ class ApiKeyBase(models.Model):
         return fernet.decrypt(self._api_key).decode()
 
     @api_key.setter
-    def api_key(self, raw_key: str):
+    def api_key(self, raw_key: str) -> None:
         self._api_key = fernet.encrypt(raw_key.encode())
 
 
 class DeepLApiKey(ApiKeyBase):
-    STATUS_CHOICES = [
-        ("PENDING", "Pending"),
-        ("ACCEPTED", "Accepted"),
-        ("REJECTED", "Rejected"),
-    ]
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        ACCEPTED = "ACCEPTED", "Accepted"
+        REJECTED = "REJECTED", "Rejected"
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.PENDING
+    )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"DeepL key for {self.user} [{self.status}]"

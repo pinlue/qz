@@ -4,7 +4,7 @@ from .views import DeepLApiKeyViewSet, DeepLTranslationsView
 
 
 router = DefaultRouter()
-router.register(r'', DeepLApiKeyViewSet)
+router.register(r"", DeepLApiKeyViewSet)
 urlpatterns = [
     path("translations/", DeepLTranslationsView.as_view(), name="deepl-translate"),
 ] + router.urls
