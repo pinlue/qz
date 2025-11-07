@@ -11,21 +11,21 @@ from users.models import User
 class Folder(Visible, Savable, Pinnable, models.Model):
     objects = build_manager(AnnotateSavedMixin, AnnotatePinnedMixin)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folders')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="folders")
 
     name = models.CharField(max_length=255)
     color = models.CharField(
         max_length=7,
         validators=[
             validators.RegexValidator(
-                regex=r'^#[0-9A-Fa-f]{6}$',
-                message='Color must be a valid hex code, e.g. #A1B2C3'
+                regex=r"^#[0-9A-Fa-f]{6}$",
+                message="Color must be a valid hex code, e.g. #A1B2C3",
             )
-        ]
+        ],
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

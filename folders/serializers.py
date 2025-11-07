@@ -8,8 +8,8 @@ from .models import Folder
 class FolderCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Folder
-        fields = ['id', 'user', 'name', 'color']
-        read_only_fields = ['id', 'user']
+        fields = ["id", "user", "name", "color"]
+        read_only_fields = ["id", "user"]
 
 
 class FolderListSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class FolderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Folder
-        fields = ['id', 'user', 'name', 'color', 'modules_count', 'saved', 'pinned']
+        fields = ["id", "user", "name", "color", "modules_count", "saved", "pinned"]
 
 
 class FolderDetailSerializer(serializers.ModelSerializer):
@@ -33,4 +33,13 @@ class FolderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Folder
-        fields = ['id', 'user', 'name', 'color', 'modules_count', 'modules', 'saved', 'pinned']
+        fields = [
+            "id",
+            "user",
+            "name",
+            "color",
+            "modules_count",
+            "modules",
+            "saved",
+            "pinned",
+        ]

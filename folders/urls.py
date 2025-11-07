@@ -3,6 +3,6 @@ from .views import FolderViewSet
 
 
 router = DefaultRouter()
-router.register(r'', FolderViewSet, basename='folder')
+router.register(r"", FolderViewSet, basename="folder")
 
 urlpatterns = router.urls
