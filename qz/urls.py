@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -33,14 +34,12 @@ urlpatterns = [
     path("api/v1/folders/", include("folders.urls")),
     path("api/v1/users/", include("users.urls")),
     path("api/v1/", include("modules.urls")),
-
     # docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
     ),
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-
     # debugging tool
     path("silk/", include("silk.urls", namespace="silk")),
 ]
