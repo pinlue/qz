@@ -1,5 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
+from rest_framework.exceptions import ValidationError
 
 from cards.models import Card
 from cards.serializers import CardSerializer
@@ -19,13 +23,17 @@ from modules.permissions import (
     ModuleHasViewerOrEditorRoles,
 )
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from rest_framework.permissions import BasePermission
+
 
 @extend_schema(tags=["cards"])
 class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
     serializer_class = CardSerializer
 
     @swagger_safe_permissions
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         if self.action in {"retrieve", "list", "learns"}:
             return [
                 (
@@ -61,9 +69,12 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
             ]
         return super().get_permissions()
 
-    def get_queryset(self):
-        return Card.objects.filter(module_id=self.kwargs.get("module_pk")).with_ann_saved(self.request.user)
+    def get_queryset(self) -> QuerySet:
+        return Card.objects.filter(
+            module_id=self.kwargs.get("module_pk")
+        ).with_ann_saved(self.request.user)
 
-    def perform_create(self, serializer):
-        module_pk = self.kwargs.get("module_pk")
+    def perform_create(self, serializer: CardSerializer) -> None:
+        if not (module_pk := self.kwargs.get("module_pk")):
+            raise ValidationError('Missing "module_pk" parameter in URL')
         serializer.save(module_id=module_pk)

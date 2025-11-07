@@ -13,11 +13,13 @@ class Card(Savable, Learnable, models.Model):
     original = models.CharField(max_length=100)
     translation = models.CharField(max_length=100)
 
-    module = models.ForeignKey('modules.Module', on_delete=models.CASCADE, related_name='cards')
+    module = models.ForeignKey(
+        "modules.Module", on_delete=models.CASCADE, related_name="cards"
+    )
 
     class Meta:
-        ordering = ['original']
-        unique_together = ('original', 'translation', 'module')
+        ordering = ["original"]
+        unique_together = ("original", "translation", "module")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.original} - {self.translation}"

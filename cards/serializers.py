@@ -22,6 +22,7 @@ class CardShortSerializer(serializers.ModelSerializer):
         fields = ["id", "original", "translation", "saved", "learned_status"]
 
 
-class CardInputSerializer(serializers.Serializer):
-    original = serializers.CharField(max_length=100)
-    translation = serializers.CharField(max_length=100)
+class CardCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Card
+        fields = ["original", "translation"]
