@@ -7,7 +7,9 @@ class Visible(models.Model):
         PUBLIC = "public", "Public"
         PRIVATE = "private", "Private"
 
-    visible = models.CharField(choices=Status.choices, default=Status.PUBLIC, max_length=7)
+    visible = models.CharField(
+        choices=Status.choices, default=Status.PUBLIC, max_length=7
+    )
 
     class Meta:
         abstract = True
