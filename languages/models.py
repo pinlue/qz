@@ -9,14 +9,14 @@ class Language(models.Model):
         unique=True,
         validators=[
             validators.RegexValidator(
-                regex=r'^[A-Z]{2,3}$',
-                message='Code must be 2 or 3 uppercase English letters.'
+                regex=r"^[A-Z]{2,3}$",
+                message="Code must be 2 or 3 uppercase English letters.",
             )
-        ]
+        ],
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
