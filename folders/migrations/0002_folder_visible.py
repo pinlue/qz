@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('folders', '0001_initial'),
+        ("folders", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='folder',
-            name='visible',
-            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default='public', max_length=7),
+            model_name="folder",
+            name="visible",
+            field=models.CharField(
+                choices=[("public", "Public"), ("private", "Private")],
+                default="public",
+                max_length=7,
+            ),
         ),
     ]

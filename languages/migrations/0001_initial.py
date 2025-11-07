@@ -8,19 +8,38 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Language',
+            name="Language",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('code', models.CharField(max_length=3, unique=True, validators=[django.core.validators.RegexValidator(message='Code must be 2 or 3 uppercase English letters.', regex='^[A-Z]{2,3}$')])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=3,
+                        unique=True,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                message="Code must be 2 or 3 uppercase English letters.",
+                                regex="^[A-Z]{2,3}$",
+                            )
+                        ],
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
     ]

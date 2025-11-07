@@ -10,27 +10,66 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('folders', '0001_initial'),
-        ('languages', '0001_initial'),
-        ('topics', '0001_initial'),
+        ("folders", "0001_initial"),
+        ("languages", "0001_initial"),
+        ("topics", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Module',
+            name="Module",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('folders', models.ManyToManyField(related_name='modules', to='folders.folder')),
-                ('lang_from', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules_from_lang', to='languages.language')),
-                ('lang_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules_to_lang', to='languages.language')),
-                ('topic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules', to='topics.topic')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True, null=True)),
+                (
+                    "folders",
+                    models.ManyToManyField(related_name="modules", to="folders.folder"),
+                ),
+                (
+                    "lang_from",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules_from_lang",
+                        to="languages.language",
+                    ),
+                ),
+                (
+                    "lang_to",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules_to_lang",
+                        to="languages.language",
+                    ),
+                ),
+                (
+                    "topic",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules",
+                        to="topics.topic",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
     ]
