@@ -9,9 +9,9 @@ class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
 
-    def get_permissions(self):
-        if self.action in {'list', 'retrieve'}:
+    def get_permissions(self) -> list[permissions.BasePermission]:
+        if self.action in {"list", "retrieve"}:
             return [permissions.AllowAny()]
-        elif self.action in {'create', 'update', 'partial_update', 'destroy'}:
+        elif self.action in {"create", "update", "partial_update", "destroy"}:
             return [permissions.IsAdminUser()]
         return super().get_permissions()
