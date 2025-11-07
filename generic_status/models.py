@@ -8,6 +8,7 @@ class Learn(UserObjectRelation):
     class Status(models.TextChoices):
         LEARNED = "learned", "Learned"
         IN_PROGRESS = "in_progress", "In progress"
+
     learned = models.CharField(max_length=11, choices=Status.choices)
 
 
@@ -18,6 +19,7 @@ class Rate(UserObjectRelation):
         THREE = 3, "3"
         FOUR = 4, "4"
         FIVE = 5, "5"
+
     rate = models.IntegerField(choices=Status.choices)
 
 
@@ -25,10 +27,11 @@ class Perm(UserObjectRelation):
     class Status(models.TextChoices):
         EDITOR = "editor", "Editor"
         VIEWER = "viewer", "Viewer"
+
     perm = models.CharField(max_length=6, choices=Status.choices)
 
     class Meta:
-        unique_together = ('user', 'content_type', 'object_id', 'perm')
+        unique_together = ("user", "content_type", "object_id", "perm")
 
 
 class Learnable(models.Model):
