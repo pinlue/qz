@@ -1,20 +1,27 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from django.db.models import Q
 
 from common.exeptions import ChainBreak
 
+if TYPE_CHECKING:
+    from rest_framework.request import Request
+    from typing import Optional
+
 
 class AccessibleChain:
-    def __init__(self, request=None, *args, **kwargs):
+    def __init__(self, request: Request = None, *args, **kwargs):
         self.request = request
-        self.next_link = None
+        self.next_link: AccessibleChain | None = None
 
-    def add(self, link):
+    def add(self, link: "AccessibleChain") -> None:
         if self.next_link:
             self.next_link.add(link)
         else:
             self.next_link = link
 
-    def handle(self, q=None):
+    def handle(self, q: Optional[Q] = None) -> Q:
         if q is None:
             q = Q()
 

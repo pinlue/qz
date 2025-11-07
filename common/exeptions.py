@@ -1,1 +1,2 @@
-class ChainBreak(Exception): pass
+class ChainBreak(Exception):
+    pass
