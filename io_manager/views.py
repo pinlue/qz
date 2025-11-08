@@ -1,4 +1,9 @@
-from django.http import HttpResponse
+from __future__ import annotations
+
+import io
+from typing import TYPE_CHECKING
+
+from django.http import FileResponse
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
@@ -13,6 +18,13 @@ from rest_framework.views import APIView
 
 from io_manager.bridge import ModelIOBridge
 from io_manager.formats import FormatRegistry
+
+if TYPE_CHECKING:
+    from io_manager.io import ImportStrategy, ExportStrategy
+    from django.db.models import Model
+    from typing import Type
+    from rest_framework.permissions import BasePermission
+    from rest_framework.request import Request
 
 
 @extend_schema(
@@ -34,16 +46,16 @@ from io_manager.formats import FormatRegistry
 )
 class GenericImportView(APIView):
     parser_classes = [MultiPartParser]
-    strategy = None
-    model = None
+    strategy: Type[ImportStrategy] | None = None
+    model: Type[Model] | None = None
 
-    def post(self, request, pk=None):
+    def post(self, request: Request, pk: int | None = None) -> Response:
         if not self.strategy or not self.model:
-            return Response({"detail": "Strategy or model not defined."}, status=500)
+            return Response({"detail": "Strategy or model not defined"}, status=500)
 
         file = request.FILES.get("file")
         if not file:
-            return Response({"detail": "No file provided."}, status=400)
+            return Response({"detail": "No file provided"}, status=400)
 
         instance = get_object_or_404(self.model, pk=pk) if pk else None
 
@@ -58,12 +70,15 @@ class GenericImportView(APIView):
             strategy = self.strategy(instance)
             bridge = ModelIOBridge(strategy, file_format)
             bridge.import_file(file)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=400)
+        except Exception:
+            return Response(
+                {"detail": "An unexpected error occurred. Please contact support."},
+                status=500,
+            )
 
-        return Response({"detail": "Import successful."}, status=200)
+        return Response({"detail": "Import successful"}, status=200)
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         return self.strategy.perms
 
 
@@ -95,10 +110,10 @@ class GenericImportView(APIView):
     },
 )
 class GenericExportView(APIView):
-    strategy = None
-    model = None
+    strategy: Type[ExportStrategy] | None = None
+    model: Type[Model] | None = None
 
-    def get(self, request, pk=None):
+    def get(self, request: Request, pk: int | None = None) -> Response | FileResponse:
         if not self.strategy:
             return Response(
                 {"detail": "Strategy not defined."},
@@ -107,10 +122,10 @@ class GenericExportView(APIView):
 
         fmt = request.query_params.get("file_format", "csv")
 
-        file_format = FormatRegistry.get(fmt)
+        file_format = FormatRegistry.get(fmt.lower())
         if not file_format:
             return Response(
-                {"detail": f"Unsupported format '{fmt}'."},
+                {"detail": f"Unsupported format '{fmt}'"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -122,19 +137,20 @@ class GenericExportView(APIView):
             strategy = self.strategy(instance)
             bridge = ModelIOBridge(strategy, file_format)
             file_content = bridge.export_file()
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response(
+                {"detail": "An unexpected error occurred. Please contact support."},
+                status=500,
+            )
 
-        content_type = (
-            "text/csv"
-            if fmt == "csv"
-            else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        filename = f"{self.model.__name__.lower()}_export.{fmt}"
+
+        return FileResponse(
+            io.BytesIO(file_content),
+            as_attachment=True,
+            filename=filename,
+            content_type=file_format.mime,
         )
 
-        response = HttpResponse(file_content, content_type=content_type)
-        filename = f"{self.model.__name__.lower()}_export.{fmt}"
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-        return response
-
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         return self.strategy.perms
