@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import models, transaction
 from rest_framework.exceptions import ValidationError
 
@@ -9,32 +13,43 @@ from interactions.models import Savable, Pinnable
 from interactions.queryset import AnnotateSavedMixin, AnnotatePinnedMixin
 from users.models import User
 
+if TYPE_CHECKING:
+    from typing import Any
+
 
 class Module(Tag, Visible, Savable, Pinnable, Permable, Rateable, models.Model):
-    objects = build_manager(AnnotateSavedMixin, AnnotatePinnedMixin, AnnotatePermMixin, AnnotateRatedMixin)
+    objects = build_manager(
+        AnnotateSavedMixin, AnnotatePinnedMixin, AnnotatePermMixin, AnnotateRatedMixin
+    )
 
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='modules')
-    topic = models.ForeignKey('topics.Topic', on_delete=models.CASCADE, related_name='modules')
-    lang_from = models.ForeignKey('languages.Language', on_delete=models.CASCADE, related_name='modules_from_lang')
-    lang_to = models.ForeignKey('languages.Language', on_delete=models.CASCADE, related_name='modules_to_lang')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="modules")
+    topic = models.ForeignKey(
+        "topics.Topic", on_delete=models.CASCADE, related_name="modules"
+    )
+    lang_from = models.ForeignKey(
+        "languages.Language", on_delete=models.CASCADE, related_name="modules_from_lang"
+    )
+    lang_to = models.ForeignKey(
+        "languages.Language", on_delete=models.CASCADE, related_name="modules_to_lang"
+    )
 
-    folders = models.ManyToManyField('folders.Folder', related_name='modules')
+    folders = models.ManyToManyField("folders.Folder", related_name="modules")
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
-    def clean(self):
+    def clean(self) -> None:
         if self.lang_from == self.lang_to:
-            raise ValidationError("Source and target languages must be different.")
+            raise ValidationError("Source and target languages must be different")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def copy(self, new_user: User) -> None:

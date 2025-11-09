@@ -10,35 +10,31 @@ from .models import Module
 from .views import ModuleViewSet, ModuleMergeView
 
 router = SimpleRouter()
-router.register(r'modules', ModuleViewSet, basename='modules')
+router.register(r"modules", ModuleViewSet, basename="modules")
 
-modules_router = routers.NestedSimpleRouter(router, r'modules', lookup='module')
-modules_router.register(r'cards', CardViewSet, basename='module-cards')
+modules_router = routers.NestedSimpleRouter(router, r"modules", lookup="module")
+modules_router.register(r"cards", CardViewSet, basename="module-cards")
 
 generic_urls = [
     path(
-        'modules/<int:pk>/import/',
-        extend_schema_view(
-            post=extend_schema(tags=["modules"])
-        )(
+        "modules/<int:pk>/import/",
+        extend_schema_view(post=extend_schema(tags=["modules"]))(
             GenericImportView.as_view(
                 strategy=ModuleCardsImporter,
                 model=Module,
             )
         ),
-        name='module-cards-import'
+        name="module-cards-import",
     ),
     path(
-        'modules/<int:pk>/export/',
-        extend_schema_view(
-            get=extend_schema(tags=["modules"])
-        )(
+        "modules/<int:pk>/export/",
+        extend_schema_view(get=extend_schema(tags=["modules"]))(
             GenericExportView.as_view(
                 strategy=ModuleCardsExporter,
                 model=Module,
             )
         ),
-        name='module-cards-export'
+        name="module-cards-export",
     ),
 ]
 

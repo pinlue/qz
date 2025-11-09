@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from functools import partial
+from typing import TYPE_CHECKING
 
 from django.db.models import Count, Prefetch
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
@@ -28,6 +31,14 @@ from modules.serializers import (
     ModuleMergeSerializer,
 )
 
+if TYPE_CHECKING:
+    from typing import Type
+    from common.access_chain import AccessibleChain
+    from django.db.models import QuerySet
+    from rest_framework.serializers import Serializer, ModelSerializer
+    from rest_framework.request import Request
+    from rest_framework.permissions import BasePermission
+
 
 @extend_schema(tags=["modules"])
 class ModuleViewSet(
@@ -40,28 +51,45 @@ class ModuleViewSet(
     viewsets.ModelViewSet,
 ):
     serializer_class = ModuleListSerializer
-    list_action_chain_links = [
+    list_action_chain_links: list[Type[AccessibleChain]] = [
         PublicIncludedLink,
         OwnerIncludedLink,
         partial(PermissionIncludedLink, model=Module, perms=["editor", "viewer"]),
     ]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Module]:
         qs = Module.objects.select_related(
             "user", "topic", "lang_from", "lang_to"
         ).annotate(cards_count=Count("cards"))
         if self.action in {"list", "retrieve"}:
             user = self.request.user
-        if self.action == "retrieve":
-            qs = qs.prefetch_related(Prefetch(
-            "cards",
-            queryset=Card.objects.all().with_ann_saved(user).with_ann_learned(user)
-        )).with_ann_saved(user).with_ann_pinned(user).with_ann_rate(user).with_ann_perm(user)
-        if self.action == "list":
-            qs = qs.filter(get_accessible_q(self.request, self.list_action_chain_links)).with_ann_saved(user).with_ann_pinned(user).with_ann_perm(user)
+            if self.action == "retrieve":
+                qs = (
+                    qs.prefetch_related(
+                        Prefetch(
+                            "cards",
+                            queryset=Card.objects.all()
+                            .with_ann_saved(user)
+                            .with_ann_learned(user),
+                        ),
+                    )
+                    .with_ann_saved(user)
+                    .with_ann_pinned(user)
+                    .with_ann_rate(user)
+                    .with_ann_perm(user)
+                )
+            if self.action == "list":
+                qs = (
+                    qs.filter(
+                        get_accessible_q(self.request, self.list_action_chain_links)
+                    )
+                    .with_ann_saved(user)
+                    .with_ann_pinned(user)
+                    .with_ann_perm(user)
+                )
         return qs
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "list":
             return ModuleListSerializer
         elif self.action == "retrieve":
@@ -70,7 +98,7 @@ class ModuleViewSet(
             return ModuleCreateUpdateSerializer
         return super().get_serializer_class()
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         if self.action == "create":
             return [permissions.IsAuthenticated()]
         elif self.action == "destroy":
@@ -114,7 +142,7 @@ class ModuleViewSet(
             ]
         return super().get_permissions()
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: ModelSerializer) -> None:
         serializer.save(user=self.request.user)
 
     @extend_schema(request=None, responses={201: None, 404: None}, methods=["POST"])
@@ -129,7 +157,7 @@ class ModuleViewSet(
             | partial_cls(HasObjRoles, roles=["viewer", "editor"]),
         ],
     )
-    def copies(self, request, pk=None):
+    def copies(self, request: Request, pk: str | None = None):
         module = self.get_object()
         module.copy(new_user=request.user)
         return Response(status=status.HTTP_201_CREATED)
@@ -144,11 +172,11 @@ class ModuleViewSet(
             examples=[
                 OpenApiExample(
                     "Too few modules",
-                    value={"modules": ["Ensure this list has at least 2 elements."]}
+                    value={"modules": ["Ensure this list has at least 2 elements."]},
                 ),
                 OpenApiExample(
                     "Invalid topic ID",
-                    value={"topic": ["A valid integer is required."]}
+                    value={"topic": ["A valid integer is required."]},
                 ),
             ],
         ),
@@ -156,14 +184,16 @@ class ModuleViewSet(
             examples=[
                 OpenApiExample(
                     "Permission denied",
-                    value={"detail": "You do not have permission to perform this action."}
+                    value={
+                        "detail": "You do not have permission to perform this action."
+                    },
                 )
             ],
         ),
     },
 )
 class ModuleMergeView(APIView):
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         return [
             permissions.IsAuthenticated(),
             (
@@ -174,7 +204,7 @@ class ModuleMergeView(APIView):
             )(),
         ]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         serializer = ModuleMergeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

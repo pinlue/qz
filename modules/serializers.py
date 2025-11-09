@@ -1,11 +1,22 @@
-from rest_framework import serializers
+from __future__ import annotations
 
-from cards.serializers import CardShortSerializer, CardInputSerializer
+from typing import TYPE_CHECKING
+
+from rest_framework import serializers
+from taggit.serializers import TagListSerializerField
+
+from cards.serializers import (
+    CardShortSerializer,
+    CardCreateSerializer,
+)
 from languages.serializers import LanguageShortSerializer, LanguageSerializer
 from modules.models import Module
 from topics.models import Topic
 from topics.serializers import TopicSerializer
 from users.serializers import UserPublicSerializer
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class ModuleListSerializer(serializers.ModelSerializer):
@@ -34,12 +45,12 @@ class ModuleListSerializer(serializers.ModelSerializer):
             "cards_count",
             "saved",
             "pinned",
-            "user_perm"
+            "user_perm",
         ]
 
 
 class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
-    cards = CardInputSerializer(many=True, write_only=True, required=False)
+    cards = CardCreateSerializer(many=True, write_only=True, required=False)
 
     class Meta:
         model = Module
@@ -55,7 +66,7 @@ class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["user"]
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> Module:
         cards_data = validated_data.pop("cards", [])
         module = Module.objects.create(**validated_data)
         if cards_data:
@@ -80,6 +91,8 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
     lang_to = LanguageSerializer(read_only=True)
     topic = TopicSerializer(read_only=True)
 
+    tags = TagListSerializerField()
+
     cards = CardShortSerializer(many=True, read_only=True)
     cards_count = serializers.IntegerField(read_only=True)
 
@@ -96,6 +109,7 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "user",
+            "tags",
             "lang_from",
             "lang_to",
             "topic",
@@ -104,7 +118,7 @@ class ModuleDetailSerializer(serializers.ModelSerializer):
             "saved",
             "pinned",
             "user_rate",
-            "user_perm"
+            "user_perm",
         ]
 
 
@@ -115,16 +129,16 @@ class ModuleMergeSerializer(serializers.Serializer):
         child=serializers.IntegerField(), min_length=2, max_length=5
     )
 
-    def validate_modules(self, module_ids):
+    def validate_modules(self, module_ids: list[int]) -> list[Module]:
         modules = list(Module.objects.filter(id__in=module_ids))
         if len(modules) != len(module_ids):
-            raise serializers.ValidationError("Some modules were not found.")
+            raise serializers.ValidationError("Some modules were not found")
 
         lang_from_set = {m.lang_from_id for m in modules}
         lang_to_set = {m.lang_to_id for m in modules}
         if len(lang_from_set) > 1 or len(lang_to_set) > 1:
             raise serializers.ValidationError(
-                "All modules must have the same languages."
+                "All modules must have the same languages"
             )
 
         return modules
