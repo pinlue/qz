@@ -9,6 +9,5 @@ class User(AbstractUser):
     bio = models.TextField(blank=True, null=True)
     avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.username
-

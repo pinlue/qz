@@ -1,9 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import Count, Q, Prefetch
 from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
     OpenApiResponse,
-    OpenApiExample,
     OpenApiParameter,
 )
 from rest_framework import mixins, viewsets, permissions
@@ -15,6 +18,11 @@ from modules.models import Module
 from modules.views import ModuleViewSet
 from users.models import User
 from users.serializers import UserPublicDetailSerializer, UserPublicSerializer
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from rest_framework.serializers import Serializer
+    from typing import Type
 
 
 @extend_schema_view(
@@ -64,7 +72,7 @@ class UserViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[User]:
         qs = User.objects.all()
         if self.action == "list":
             return qs
@@ -78,7 +86,9 @@ class UserViewSet(
                             request=self.request,
                             links=FolderViewSet.list_action_chain_links,
                         )
-                    ).with_ann_saved(user).with_ann_pinned(user),
+                    )
+                    .with_ann_saved(user)
+                    .with_ann_pinned(user),
                 ),
                 Prefetch(
                     "modules",
@@ -87,7 +97,11 @@ class UserViewSet(
                             request=self.request,
                             links=ModuleViewSet.list_action_chain_links,
                         )
-                    ).with_ann_saved(user).with_ann_pinned(user).with_ann_perm(user).prefetch_related("tags", "cards"),
+                    )
+                    .with_ann_saved(user)
+                    .with_ann_pinned(user)
+                    .with_ann_perm(user)
+                    .prefetch_related("tags", "cards"),
                 ),
             ).annotate(
                 public_modules_count=Count(
@@ -108,14 +122,14 @@ class UserViewSet(
             )
         return super().get_queryset()
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[permissions.BasePermission]:
         if self.action == "destroy":
             return [permissions.IsAuthenticated(), (IsObjOwner | IsObjAdmin)()]
         if self.action in {"list", "retrieve"}:
             return [permissions.AllowAny()]
         return super().get_permissions()
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "retrieve":
             return UserPublicDetailSerializer
         if self.action == "list":
