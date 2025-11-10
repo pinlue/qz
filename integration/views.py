@@ -17,7 +17,9 @@ from drf_spectacular.utils import (
 from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from common.permissions import IsObjOwner, IsObjAdmin
+
+from common.exeptions import UnRegisteredPolicy
+from common.policy import PolicyRegistry
 from .models import DeepLApiKey
 from .permissions import HasAcceptedDeepLApiKeyView
 from .serializers import (
@@ -37,6 +39,7 @@ if TYPE_CHECKING:
 @extend_schema(tags=["deepl"])
 class DeepLApiKeyViewSet(viewsets.ModelViewSet):
     queryset = DeepLApiKey.objects.all()
+    policies = PolicyRegistry()
 
     def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "create":
@@ -46,12 +49,10 @@ class DeepLApiKeyViewSet(viewsets.ModelViewSet):
         return DeepLApiKeySerializer
 
     def get_permissions(self) -> list[BasePermission]:
-        if self.action == "list":
-            return [permissions.IsAdminUser()]
-        elif self.action == "create":
-            return [permissions.IsAuthenticated()]
-        elif self.action in {"retrieve", "update", "partial_update", "destroy"}:
-            return [(IsObjAdmin | IsObjOwner)()]
+        try:
+            return [perm() for perm in self.policies.get(self.action)]
+        except UnRegisteredPolicy:
+            pass
         return super().get_permissions()
 
 
@@ -91,7 +92,7 @@ class DeepLTranslationsView(APIView):
             ]
         except AuthorizationException:
             return Response(
-                {"detail": "Invalid DeepL API ke"}, status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "Invalid DeepL API key"}, status=status.HTTP_401_UNAUTHORIZED
             )
         except QuotaExceededException:
             return Response(

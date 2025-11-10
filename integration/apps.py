@@ -7,3 +7,9 @@ class IntegrationConfig(AppConfig):
 
     def ready(self):
         import integration.signals  # noqa
+
+        from integration import policies
+        from integration.views import DeepLApiKeyViewSet
+
+        for action, policy in policies.POLICIES.items():
+            DeepLApiKeyViewSet.policies.register(action, policy)
