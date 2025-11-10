@@ -5,11 +5,11 @@ from common.models import UserObjectRelation
 
 
 class Pin(UserObjectRelation):
-    user_related_name = "pins"
+    pass
 
 
 class Save(UserObjectRelation):
-    user_related_name = "saves"
+    pass
 
 
 class Pinnable(models.Model):
