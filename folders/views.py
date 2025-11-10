@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from django.db.models import Count, Q, Prefetch
@@ -8,20 +9,19 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
 )
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.request import Request
 from rest_framework.response import Response
 
-from abstracts.permissions import IsObjPublic, PublicIncludedLink
+from abstracts.permissions import PublicIncludedLink
 from abstracts.views import VisibleMixin
 from common.decorators import swagger_safe_permissions
+from common.exeptions import UnRegisteredPolicy
 from common.permissions import (
-    IsObjOwner,
     get_accessible_q,
-    IsObjAdmin,
     OwnerIncludedLink,
 )
+from common.policy import PolicyRegistry
 from folders.models import Folder
 from folders.serializers import (
     FolderListSerializer,
@@ -30,11 +30,6 @@ from folders.serializers import (
 )
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
-from modules.permissions import (
-    ModuleObjIsPublic,
-    ModuleObjIsOwner,
-    ModuleHasViewerOrEditorRoles,
-)
 from modules.views import ModuleViewSet
 
 if TYPE_CHECKING:
@@ -42,11 +37,13 @@ if TYPE_CHECKING:
     from typing import Optional, Type
     from rest_framework.permissions import BasePermission
     from rest_framework.serializers import Serializer, ModelSerializer
+    from rest_framework.request import Request
 
 
 @extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     list_action_chain_links = [PublicIncludedLink, OwnerIncludedLink]
+    policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet:
         base_qs = Folder.objects.select_related("user")
@@ -102,19 +99,10 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
 
     @swagger_safe_permissions
     def get_permissions(self) -> list[BasePermission]:
-        if self.action == "create":
-            return [permissions.IsAuthenticated()]
-        elif self.action in ["update", "partial_update", "destroy"]:
-            return [(IsObjAdmin | IsObjOwner)()]
-        elif self.action == "list":
-            return [permissions.AllowAny()]
-        elif self.action == "retrieve":
-            return [(IsObjAdmin | IsObjOwner | IsObjPublic)()]
-        elif self.action == "pins":
-            return [
-                permissions.IsAuthenticated(),
-                (IsObjAdmin | IsObjOwner | IsObjPublic)(),
-            ]
+        try:
+            return [perm() for perm in self.policies.get(self.action)]
+        except UnRegisteredPolicy:
+            pass
         return super().get_permissions()
 
     def perform_create(self, serializer: ModelSerializer) -> None:
@@ -166,13 +154,6 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
         detail=True,
         methods=["post", "delete"],
         url_path="modules/(?P<module_id>[^/.]+)",
-        permission_classes=[
-            IsObjAdmin
-            | (
-                IsObjOwner
-                & (ModuleObjIsPublic | ModuleObjIsOwner | ModuleHasViewerOrEditorRoles)
-            )
-        ],
     )
     def manage_module(
         self, request: Request, module_id: int, pk: Optional[int] = None
