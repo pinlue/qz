@@ -5,7 +5,7 @@ from users.utils import user_avatar_path
 
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     bio = models.TextField(blank=True, null=True)
     avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
 

@@ -11,7 +11,9 @@ from drf_spectacular.utils import (
 )
 from rest_framework import mixins, viewsets, permissions
 
-from common.permissions import IsObjOwner, IsObjAdmin, get_accessible_q
+from common.exeptions import UnRegisteredPolicy
+from common.permissions import get_accessible_q
+from common.policy import PolicyRegistry
 from folders.models import Folder
 from folders.views import FolderViewSet
 from modules.models import Module
@@ -72,6 +74,8 @@ class UserViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    policies = PolicyRegistry()
+
     def get_queryset(self) -> QuerySet[User]:
         qs = User.objects.all()
         if self.action == "list":
@@ -123,10 +127,10 @@ class UserViewSet(
         return super().get_queryset()
 
     def get_permissions(self) -> list[permissions.BasePermission]:
-        if self.action == "destroy":
-            return [permissions.IsAuthenticated(), (IsObjOwner | IsObjAdmin)()]
-        if self.action in {"list", "retrieve"}:
-            return [permissions.AllowAny()]
+        try:
+            return [perm() for perm in self.policies.get(self.action)]
+        except UnRegisteredPolicy:
+            pass
         return super().get_permissions()
 
     def get_serializer_class(self) -> Type[Serializer]:

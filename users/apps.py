@@ -7,3 +7,9 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         import users.signals # noqa
+
+        from users import policies
+        from users.views import UserViewSet
+
+        for action, policy in policies.POLICIES.items():
+            UserViewSet.policies.register(action, policy)
