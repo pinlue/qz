@@ -4,7 +4,7 @@ from cards.models import Card
 
 
 class CardSerializer(serializers.ModelSerializer):
-    saved = serializers.BooleanField()
+    saved = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Card
