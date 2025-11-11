@@ -5,25 +5,25 @@ from typing import TYPE_CHECKING
 
 from django.db.models import Count, Prefetch
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from abstracts.permissions import IsObjPublic, PublicIncludedLink
+from abstracts.permissions import PublicIncludedLink
 from abstracts.views import TagMixin, VisibleMixin
 from cards.models import Card
+from common.exeptions import UnRegisteredPolicy
 from common.permissions import (
-    IsObjOwner,
     OwnerIncludedLink,
-    IsObjAdmin,
     get_accessible_q,
-    partial_cls,
 )
-from generic_status.permissions import PermissionIncludedLink, HasObjRoles
+from common.policy import PolicyRegistry
+from generic_status.permissions import PermissionIncludedLink
 from generic_status.views import RateMixin, PermMixin
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
+from modules.policies import MODULE_MERGE_POLICY
 from modules.serializers import (
     ModuleListSerializer,
     ModuleDetailSerializer,
@@ -56,6 +56,7 @@ class ModuleViewSet(
         OwnerIncludedLink,
         partial(PermissionIncludedLink, model=Module, perms=["editor", "viewer"]),
     ]
+    policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[Module]:
         qs = Module.objects.select_related(
@@ -79,10 +80,8 @@ class ModuleViewSet(
                     .with_ann_perm(user)
                 )
             if self.action == "list":
-                qs = (
-                    qs.filter(
-                        get_accessible_q(self.request, self.list_action_chain_links)
-                    )
+                qs = qs.filter(
+                    get_accessible_q(self.request, self.list_action_chain_links)
                 )
         return qs
 
@@ -96,47 +95,10 @@ class ModuleViewSet(
         return super().get_serializer_class()
 
     def get_permissions(self) -> list[BasePermission]:
-        if self.action == "create":
-            return [permissions.IsAuthenticated()]
-        elif self.action == "destroy":
-            return [(IsObjOwner | IsObjOwner)()]
-        elif self.action in {"update", "partial_update"}:
-            return [
-                (IsObjAdmin | IsObjOwner | partial_cls(HasObjRoles, roles=["editor"]))()
-            ]
-        elif self.action == "list":
-            return [permissions.AllowAny()]
-        elif self.action == "retrieve":
-            return [
-                (
-                    IsObjAdmin
-                    | IsObjOwner
-                    | IsObjPublic
-                    | partial_cls(HasObjRoles, roles=["editor", "viewer"])
-                )()
-            ]
-        elif self.action == "rates":
-            return [
-                permissions.IsAuthenticated(),
-                (
-                    ~IsObjOwner
-                    & (
-                        IsObjPublic
-                        | IsObjAdmin
-                        | partial_cls(HasObjRoles, roles=["viewer", "editor"])
-                    )
-                )(),
-            ]
-        elif self.action in {"pins", "saves"}:
-            return [
-                permissions.IsAuthenticated(),
-                (
-                    IsObjPublic
-                    | IsObjAdmin
-                    | IsObjOwner
-                    | partial_cls(HasObjRoles, roles=["editor", "viewer"])
-                )(),
-            ]
+        try:
+            return [perm() for perm in self.policies.get(self.action)]
+        except UnRegisteredPolicy:
+            pass
         return super().get_permissions()
 
     def perform_create(self, serializer: ModelSerializer) -> None:
@@ -146,13 +108,6 @@ class ModuleViewSet(
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[
-            permissions.IsAuthenticated,
-            IsObjPublic
-            | IsObjAdmin
-            | IsObjOwner
-            | partial_cls(HasObjRoles, roles=["viewer", "editor"]),
-        ],
     )
     def copies(self, request: Request, pk: str | None = None):
         module = self.get_object()
@@ -191,15 +146,7 @@ class ModuleViewSet(
 )
 class ModuleMergeView(APIView):
     def get_permissions(self) -> list[BasePermission]:
-        return [
-            permissions.IsAuthenticated(),
-            (
-                IsObjPublic
-                | IsObjAdmin
-                | IsObjOwner
-                | partial_cls(HasObjRoles, roles=["editor", "viewer"])
-            )(),
-        ]
+        return [perm() for perm in MODULE_MERGE_POLICY]
 
     def post(self, request: Request) -> Response:
         serializer = ModuleMergeSerializer(data=request.data)
