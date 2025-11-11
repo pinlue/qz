@@ -20,7 +20,7 @@ LIST_POLICY = [AllowAny]
 
 RETRIEVE_POLICY = [IsObjAdmin | IsObjOwner | IsObjPublic]
 
-PINS_POLICY = RETRIEVE_POLICY.append(IsAuthenticated)
+PINS_POLICY = [IsAuthenticated, IsObjAdmin | IsObjOwner | IsObjPublic]
 
 SAVES_POLICY = PINS_POLICY
 

@@ -17,7 +17,7 @@ LIST_POLICY = RETRIEVE_POLICY
 
 LEARNS_POLICY = RETRIEVE_POLICY
 
-SAVES_POLICY = RETRIEVE_POLICY.append(IsAuthenticated)
+SAVES_POLICY = [IsAuthenticated, ModuleObjIsPublic | IsObjAdmin | ModuleObjIsOwner | ModuleHasViewerOrEditorRoles]
 
 CREATE_POLICY = [
     IsAuthenticated,
