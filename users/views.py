@@ -19,6 +19,7 @@ from folders.views import FolderViewSet
 from modules.models import Module
 from modules.views import ModuleViewSet
 from users.models import User
+from users.pagination import UserPagination
 from users.serializers import UserPublicDetailSerializer, UserPublicSerializer
 
 if TYPE_CHECKING:
@@ -74,6 +75,7 @@ class UserViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    pagination_class = UserPagination
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[User]:

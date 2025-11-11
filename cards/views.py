@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 
 from cards.models import Card
+from cards.pagination import CardPagination
 from cards.serializers import CardSerializer
 from common.decorators import swagger_safe_permissions
 from common.exeptions import UnRegisteredPolicy
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
 @extend_schema(tags=["cards"])
 class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
+    pagination_class = CardPagination
     serializer_class = CardSerializer
     policies = PolicyRegistry()
 

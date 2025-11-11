@@ -23,6 +23,7 @@ from common.permissions import (
 )
 from common.policy import PolicyRegistry
 from folders.models import Folder
+from folders.pagination import FolderPagination
 from folders.serializers import (
     FolderListSerializer,
     FolderDetailSerializer,
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
 
 @extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
+    pagination_class = FolderPagination
     list_action_chain_links = [PublicIncludedLink, OwnerIncludedLink]
     policies = PolicyRegistry()
 

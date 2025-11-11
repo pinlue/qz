@@ -23,6 +23,7 @@ from generic_status.permissions import PermissionIncludedLink
 from generic_status.views import RateMixin, PermMixin
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
+from modules.pagination import ModulePagination
 from modules.policies import MODULE_MERGE_POLICY
 from modules.serializers import (
     ModuleListSerializer,
@@ -50,6 +51,7 @@ class ModuleViewSet(
     PermMixin,
     viewsets.ModelViewSet,
 ):
+    pagination_class = ModulePagination
     serializer_class = ModuleListSerializer
     list_action_chain_links: list[Type[AccessibleChain]] = [
         PublicIncludedLink,
