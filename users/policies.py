@@ -2,7 +2,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from common.permissions import IsObjOwner, IsObjAdmin
 
-
 DESTROY_POLICY = [IsAuthenticated, IsObjOwner | IsObjAdmin]
 
 LIST_POLICY = [AllowAny]

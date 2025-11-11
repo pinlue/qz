@@ -62,14 +62,10 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
             user = self.request.user
 
             if self.action == "list":
-                return (
-                    qs.filter(
-                        get_accessible_q(
-                            request=self.request, links=self.list_action_chain_links
-                        )
+                return qs.filter(
+                    get_accessible_q(
+                        request=self.request, links=self.list_action_chain_links
                     )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user)
                 )
             if self.action == "retrieve":
                 return (

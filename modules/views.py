@@ -83,9 +83,6 @@ class ModuleViewSet(
                     qs.filter(
                         get_accessible_q(self.request, self.list_action_chain_links)
                     )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user)
-                    .with_ann_perm(user)
                 )
         return qs
 

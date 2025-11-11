@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from taggit.models import Tag
@@ -12,7 +13,7 @@ from common.permissions import IsObjOwner, IsObjAdmin
 
 if TYPE_CHECKING:
     from rest_framework.request import Request
-    from typing import Optional, Any
+    from typing import Any
     from rest_framework.permissions import BasePermission
 
 
@@ -25,9 +26,7 @@ class TagMixin:
         },
     )
     @action(detail=True, methods=["post"])
-    def tags(
-        self, request: Request, pk: Optional[int] = None, **kwargs: Any
-    ) -> Response:
+    def tags(self, request: Request, pk: str | None = None, **kwargs: Any) -> Response:
         serializer = TagsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -54,7 +53,7 @@ class TagMixin:
     )
     @action(detail=True, methods=["delete"], url_path="tags/(?P<tag_name>[^/]+)")
     def remove_tag(
-        self, request: Request, tag_name: str, pk: Optional[int] = None, **kwargs: Any
+        self, request: Request, tag_name: str, pk: str | None = None, **kwargs: Any
     ) -> Response:
         obj = self.get_object()
 
@@ -68,7 +67,7 @@ class TagMixin:
 
     def get_permissions(self) -> list[BasePermission]:
         if self.action in {"tags", "remove_tag"}:
-            return [(IsObjOwner | IsObjAdmin)()]
+            return [permissions.IsAuthenticated(), (IsObjOwner | IsObjAdmin)()]
         return super().get_permissions()
 
 
@@ -83,7 +82,7 @@ class VisibleMixin:
     )
     @action(detail=True, methods=["patch"])
     def visibles(
-        self, request: Request, pk: Optional[int] = None, **kwargs: Any
+        self, request: Request, pk: str | None = None, **kwargs: Any
     ) -> Response:
         obj = self.get_object()
         serializer = VisibleSerializer(data=request.data)
@@ -96,5 +95,5 @@ class VisibleMixin:
 
     def get_permissions(self) -> list[BasePermission]:
         if self.action == "visibles":
-            return [(IsObjOwner | IsObjAdmin)()]
+            return [permissions.IsAuthenticated(), (IsObjOwner | IsObjAdmin)()]
         return super().get_permissions()

@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from django.db.models import Q
 from rest_framework.permissions import BasePermission
 
-from common.access_chain import AccessibleChain
 from abstracts.models import Visible
+from common.access_chain import AccessibleChain
 
 if TYPE_CHECKING:
     from typing import Optional

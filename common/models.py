@@ -2,6 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from django.conf import settings
+
 
 class ScheduledTask(models.Model):
     STATUS_CHOICES = [
@@ -23,7 +25,7 @@ class ScheduledTask(models.Model):
 
 class UserObjectRelation(models.Model):
     user = models.ForeignKey(
-        "users.User",
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="%(class)ss",
     )

@@ -27,11 +27,6 @@ class ModuleListSerializer(serializers.ModelSerializer):
 
     cards_count = serializers.IntegerField(read_only=True)
 
-    saved = serializers.BooleanField()
-    pinned = serializers.BooleanField()
-
-    user_perm = serializers.CharField()
-
     class Meta:
         model = Module
         fields = [
@@ -43,9 +38,6 @@ class ModuleListSerializer(serializers.ModelSerializer):
             "lang_to",
             "topic",
             "cards_count",
-            "saved",
-            "pinned",
-            "user_perm",
         ]
 
 
