@@ -7,12 +7,12 @@ from common.exeptions import ChainBreak
 
 if TYPE_CHECKING:
     from rest_framework.request import Request
-    from typing import Optional
+    from typing import Optional, Any
 
 
 class AccessibleChain:
-    def __init__(self, request: Request = None, *args, **kwargs):
-        self.request = request
+    def __init__(self, request: Request = None, *args: Any, **kwargs: Any) -> None:
+        self.request: Request = request
         self.next_link: AccessibleChain | None = None
 
     def add(self, link: "AccessibleChain") -> None:

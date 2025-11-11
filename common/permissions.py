@@ -57,7 +57,7 @@ class RelatedObjPermissionProxy:
             delattr(self.decorated_instance, name)
 
 
-def partial_cls(base: Any, *args, **kwargs) -> Any:
+def partial_cls(base: Any, *args: Any, **kwargs: Any) -> Any:
     class Adapter(base):
         def __init__(self):
             super().__init__(*args, **kwargs)

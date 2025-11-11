@@ -6,7 +6,7 @@ from common.models import ScheduledTask
 
 
 @shared_task
-def run_scheduled_tasks():
+def run_scheduled_tasks() -> None:
     now = timezone.now()
     due_tasks = ScheduledTask.objects.filter(status="pending", scheduled_time__lte=now)
     for task in due_tasks:
