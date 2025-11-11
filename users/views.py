@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q, Prefetch
 from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
@@ -12,15 +11,11 @@ from drf_spectacular.utils import (
 from rest_framework import mixins, viewsets, permissions
 
 from common.exeptions import UnRegisteredPolicy
-from common.permissions import get_accessible_q
 from common.policy import PolicyRegistry
-from folders.models import Folder
-from folders.views import FolderViewSet
-from modules.models import Module
-from modules.views import ModuleViewSet
 from users.models import User
 from users.pagination import UserPagination
 from users.serializers import UserPublicDetailSerializer, UserPublicSerializer
+from users.service import UserService
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -79,54 +74,11 @@ class UserViewSet(
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[User]:
-        qs = User.objects.all()
-        if self.action == "list":
-            return qs
-        if self.action == "retrieve":
-            user = self.request.user
-            return qs.prefetch_related(
-                Prefetch(
-                    "folders",
-                    queryset=Folder.objects.filter(
-                        get_accessible_q(
-                            request=self.request,
-                            links=FolderViewSet.list_action_chain_links,
-                        )
-                    )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user),
-                ),
-                Prefetch(
-                    "modules",
-                    queryset=Module.objects.filter(
-                        get_accessible_q(
-                            request=self.request,
-                            links=ModuleViewSet.list_action_chain_links,
-                        )
-                    )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user)
-                    .with_ann_perm(user)
-                    .prefetch_related("tags", "cards"),
-                ),
-            ).annotate(
-                public_modules_count=Count(
-                    "modules__id",
-                    filter=Q(modules__visible="public"),
-                    distinct=True,
-                ),
-                public_folders_count=Count(
-                    "folders__id",
-                    filter=Q(folders__visible="public"),
-                    distinct=True,
-                ),
-                total_cards_count=Count(
-                    "modules__cards__id",
-                    filter=Q(modules__visible="public"),
-                    distinct=True,
-                ),
-            )
-        return super().get_queryset()
+        service = UserService(
+            request=self.request,
+            action=self.action,
+        )
+        return service.get_queryset()
 
     def get_permissions(self) -> list[permissions.BasePermission]:
         try:

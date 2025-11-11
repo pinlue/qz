@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from django.db.models import Model
     from rest_framework.request import Request
     from rest_framework.views import APIView
+    from django.http import HttpRequest
 
 
 T = TypeVar("T", bound=BasePermission)
@@ -56,7 +57,7 @@ class RelatedObjPermissionProxy:
             delattr(self.decorated_instance, name)
 
 
-def partial_cls(base: Type[BasePermission], *args, **kwargs) -> Type[BasePermission]:
+def partial_cls(base: Any, *args, **kwargs) -> Any:
     class Adapter(base):
         def __init__(self):
             super().__init__(*args, **kwargs)
@@ -84,7 +85,7 @@ class OwnerIncludedLink(AccessibleChain):
         return super().handle(q)
 
 
-def get_accessible_q(request: Request, links: list[Type[AccessibleChain]]) -> Q:
+def get_accessible_q(request: Request | HttpRequest, links: list[Type[AccessibleChain]]) -> Q:
     root = AccessibleChain(request)
     for l in links:
         root.add(l())

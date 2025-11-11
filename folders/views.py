@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q, Prefetch
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import (
     extend_schema,
@@ -13,25 +12,21 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from abstracts.permissions import PublicIncludedLink
 from abstracts.views import VisibleMixin
 from common.decorators import swagger_safe_permissions
 from common.exeptions import UnRegisteredPolicy
-from common.permissions import (
-    get_accessible_q,
-    OwnerIncludedLink,
-)
 from common.policy import PolicyRegistry
-from folders.models import Folder
+
 from folders.pagination import FolderPagination
 from folders.serializers import (
     FolderListSerializer,
     FolderDetailSerializer,
     FolderCreateUpdateSerializer,
 )
+from folders.service import FolderService
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
-from modules.views import ModuleViewSet
+
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -44,47 +39,14 @@ if TYPE_CHECKING:
 @extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     pagination_class = FolderPagination
-    list_action_chain_links = [PublicIncludedLink, OwnerIncludedLink]
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet:
-        base_qs = Folder.objects.select_related("user")
-
-        if self.action in {"list", "retrieve"}:
-            modules_q = get_accessible_q(
-                self.request, ModuleViewSet.list_action_chain_links
-            )
-            qs = base_qs.annotate(
-                modules_count=Count(
-                    "modules",
-                    filter=Q(modules__in=Module.objects.filter(modules_q)),
-                    distinct=True,
-                )
-            )
-            user = self.request.user
-
-            if self.action == "list":
-                return qs.filter(
-                    get_accessible_q(
-                        request=self.request, links=self.list_action_chain_links
-                    )
-                )
-            if self.action == "retrieve":
-                return (
-                    qs.prefetch_related(
-                        Prefetch(
-                            "modules",
-                            queryset=Module.objects.filter(modules_q)
-                            .select_related("user", "topic", "lang_from", "lang_to")
-                            .with_ann_saved(user)
-                            .with_ann_pinned(user)
-                            .with_ann_perm(user),
-                        )
-                    )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user)
-                )
-        return base_qs
+        service = FolderService(
+            request=self.request,
+            action=self.action,
+        )
+        return service.get_queryset()
 
     def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "list":

@@ -1,25 +1,17 @@
 from __future__ import annotations
 
-from functools import partial
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Prefetch
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from abstracts.permissions import PublicIncludedLink
 from abstracts.views import TagMixin, VisibleMixin
 from cards.models import Card
 from common.exeptions import UnRegisteredPolicy
-from common.permissions import (
-    OwnerIncludedLink,
-    get_accessible_q,
-)
 from common.policy import PolicyRegistry
-from generic_status.permissions import PermissionIncludedLink
 from generic_status.views import RateMixin, PermMixin
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
@@ -31,10 +23,10 @@ from modules.serializers import (
     ModuleCreateUpdateSerializer,
     ModuleMergeSerializer,
 )
+from modules.service import ModuleService
 
 if TYPE_CHECKING:
     from typing import Type
-    from common.access_chain import AccessibleChain
     from django.db.models import QuerySet
     from rest_framework.serializers import Serializer, ModelSerializer
     from rest_framework.request import Request
@@ -53,39 +45,14 @@ class ModuleViewSet(
 ):
     pagination_class = ModulePagination
     serializer_class = ModuleListSerializer
-    list_action_chain_links: list[Type[AccessibleChain]] = [
-        PublicIncludedLink,
-        OwnerIncludedLink,
-        partial(PermissionIncludedLink, model=Module, perms=["editor", "viewer"]),
-    ]
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[Module]:
-        qs = Module.objects.select_related(
-            "user", "topic", "lang_from", "lang_to"
-        ).annotate(cards_count=Count("cards"))
-        if self.action in {"list", "retrieve"}:
-            user = self.request.user
-            if self.action == "retrieve":
-                qs = (
-                    qs.prefetch_related(
-                        Prefetch(
-                            "cards",
-                            queryset=Card.objects.all()
-                            .with_ann_saved(user)
-                            .with_ann_learned(user),
-                        ),
-                    )
-                    .with_ann_saved(user)
-                    .with_ann_pinned(user)
-                    .with_ann_rate(user)
-                    .with_ann_perm(user)
-                )
-            if self.action == "list":
-                qs = qs.filter(
-                    get_accessible_q(self.request, self.list_action_chain_links)
-                )
-        return qs
+        service = ModuleService(
+            request=self.request,
+            action=self.action,
+        )
+        return service.get_queryset()
 
     def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "list":
