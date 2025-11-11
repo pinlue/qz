@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from rest_framework.permissions import BasePermission
     from rest_framework.serializers import Serializer, ModelSerializer
     from rest_framework.request import Request
+    from .models import Folder
 
 
 @extend_schema(tags=["folders"])
@@ -41,7 +42,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     pagination_class = FolderPagination
     policies = PolicyRegistry()
 
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self) -> QuerySet[Folder]:
         service = FolderService(
             request=self.request,
             action=self.action,
