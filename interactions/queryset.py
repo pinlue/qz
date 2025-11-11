@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 from django.db.models import When, Case, Value, BooleanField
 
 if TYPE_CHECKING:

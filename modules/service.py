@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 from abstracts.permissions import PublicIncludedLink
 from common.permissions import OwnerIncludedLink, partial_cls
 from generic_status.permissions import PermissionIncludedLink
