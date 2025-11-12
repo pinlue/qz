@@ -25,6 +25,8 @@ class Module(Tag, Visible, Savable, Pinnable, Permable, Rateable, models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
+    created = models.DateTimeField(auto_now_add=True)
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="modules")
     topic = models.ForeignKey(
         "topics.Topic", on_delete=models.CASCADE, related_name="modules"
