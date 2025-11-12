@@ -13,6 +13,8 @@ class Card(Savable, Learnable, models.Model):
     original = models.CharField(max_length=100)
     translation = models.CharField(max_length=100)
 
+    created = models.DateTimeField(auto_now_add=True)
+
     module = models.ForeignKey(
         "modules.Module", on_delete=models.CASCADE, related_name="cards"
     )
