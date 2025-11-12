@@ -1,0 +1,262 @@
+[
+  {
+    "model": "modules.module",
+    "pk": 1,
+    "fields": {
+      "name": "Basic Greetings",
+      "description": "Learn to greet and introduce yourself in different situations.",
+      "user": 1,
+      "topic": 10,
+      "lang_from": 10,
+      "lang_to": 11,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 2,
+    "fields": {
+      "name": "Travel Essentials",
+      "description": "Key travel expressions for airports, taxis, and hotels.",
+      "user": 1,
+      "topic": 11,
+      "lang_from": 12,
+      "lang_to": 13,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 3,
+    "fields": {
+      "name": "Food and Dining",
+      "description": "Useful phrases for restaurants, menus, and ordering food.",
+      "user": 1,
+      "topic": 12,
+      "lang_from": 14,
+      "lang_to": 15,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 4,
+    "fields": {
+      "name": "Shopping Vocabulary",
+      "description": "Essential words and expressions for shopping situations.",
+      "user": 1,
+      "topic": 13,
+      "lang_from": 16,
+      "lang_to": 17,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 5,
+    "fields": {
+      "name": "Family and Friends",
+      "description": "Talk about family, relationships, and social life.",
+      "user": 1,
+      "topic": 14,
+      "lang_from": 18,
+      "lang_to": 19,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 6,
+    "fields": {
+      "name": "At the Office",
+      "description": "Phrases for professional conversations at work.",
+      "user": 1,
+      "topic": 15,
+      "lang_from": 20,
+      "lang_to": 21,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 7,
+    "fields": {
+      "name": "Health and Medicine",
+      "description": "Words for describing symptoms and talking to doctors.",
+      "user": 1,
+      "topic": 16,
+      "lang_from": 22,
+      "lang_to": 23,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 8,
+    "fields": {
+      "name": "Numbers and Counting",
+      "description": "Learn how to count, use prices, and tell the time.",
+      "user": 1,
+      "topic": 17,
+      "lang_from": 24,
+      "lang_to": 25,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 9,
+    "fields": {
+      "name": "Weather and Seasons",
+      "description": "Talk about the weather, seasons, and climate.",
+      "user": 1,
+      "topic": 18,
+      "lang_from": 26,
+      "lang_to": 27,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 10,
+    "fields": {
+      "name": "Directions and Transport",
+      "description": "Ask for directions and navigate public transport easily.",
+      "user": 1,
+      "topic": 19,
+      "lang_from": 28,
+      "lang_to": 29,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 11,
+    "fields": {
+      "name": "Daily Routines",
+      "description": "Describe your typical day, habits, and activities.",
+      "user": 1,
+      "topic": 20,
+      "lang_from": 30,
+      "lang_to": 31,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 12,
+    "fields": {
+      "name": "Sports and Hobbies",
+      "description": "Vocabulary to talk about favorite sports and hobbies.",
+      "user": 1,
+      "topic": 21,
+      "lang_from": 32,
+      "lang_to": 33,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 13,
+    "fields": {
+      "name": "Nature and Animals",
+      "description": "Learn to describe landscapes, animals, and the environment.",
+      "user": 1,
+      "topic": 22,
+      "lang_from": 34,
+      "lang_to": 35,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 14,
+    "fields": {
+      "name": "Technology Basics",
+      "description": "Common tech words for phones, computers, and the internet.",
+      "user": 1,
+      "topic": 23,
+      "lang_from": 36,
+      "lang_to": 37,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 15,
+    "fields": {
+      "name": "School and Education",
+      "description": "Useful terms related to studying and school life.",
+      "user": 1,
+      "topic": 24,
+      "lang_from": 38,
+      "lang_to": 39,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 16,
+    "fields": {
+      "name": "Entertainment",
+      "description": "Discuss movies, books, and music in conversations.",
+      "user": 1,
+      "topic": 25,
+      "lang_from": 40,
+      "lang_to": 10,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 17,
+    "fields": {
+      "name": "At the Airport",
+      "description": "Learn useful phrases for check-in and customs.",
+      "user": 1,
+      "topic": 26,
+      "lang_from": 11,
+      "lang_to": 12,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 18,
+    "fields": {
+      "name": "Hotel Conversations",
+      "description": "Communicate easily during your hotel stay.",
+      "user": 1,
+      "topic": 27,
+      "lang_from": 13,
+      "lang_to": 14,
+      "visible": "private"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 19,
+    "fields": {
+      "name": "Emergency Situations",
+      "description": "Key phrases for calling help and reporting emergencies.",
+      "user": 1,
+      "topic": 28,
+      "lang_from": 15,
+      "lang_to": 16,
+      "visible": "public"
+    }
+  },
+  {
+    "model": "modules.module",
+    "pk": 20,
+    "fields": {
+      "name": "Cultural Etiquette",
+      "description": "Learn about politeness and manners in other countries.",
+      "user": 1,
+      "topic": 29,
+      "lang_from": 17,
+      "lang_to": 18,
+      "visible": "private"
+    }
+  }
+]
