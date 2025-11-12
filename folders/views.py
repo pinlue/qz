@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
@@ -26,7 +27,7 @@ from folders.serializers import (
 from folders.service import FolderService
 from interactions.views import PinMixin, SaveMixin
 from modules.models import Module
-
+from .filters import FolderFilter
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -39,6 +40,8 @@ if TYPE_CHECKING:
 
 @extend_schema(tags=["folders"])
 class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = FolderFilter
     pagination_class = FolderPagination
     policies = PolicyRegistry()
 
