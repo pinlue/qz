@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
@@ -12,6 +13,7 @@ from rest_framework import mixins, viewsets, permissions
 
 from common.exeptions import UnRegisteredPolicy
 from common.policy import PolicyRegistry
+from users.filters import UserFilter
 from users.models import User
 from users.pagination import UserPagination
 from users.serializers import UserPublicDetailSerializer, UserPublicSerializer
@@ -70,6 +72,8 @@ class UserViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
     pagination_class = UserPagination
     policies = PolicyRegistry()
 
