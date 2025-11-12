@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 
+from cards.filters import CardFilter
 from cards.models import Card
 from cards.pagination import CardPagination
 from cards.serializers import CardSerializer
@@ -22,6 +24,8 @@ if TYPE_CHECKING:
 
 @extend_schema(tags=["cards"])
 class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CardFilter
     pagination_class = CardPagination
     serializer_class = CardSerializer
     policies = PolicyRegistry()
