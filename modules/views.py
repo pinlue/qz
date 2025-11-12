@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ from common.exeptions import UnRegisteredPolicy
 from common.policy import PolicyRegistry
 from generic_status.views import RateMixin, PermMixin
 from interactions.views import PinMixin, SaveMixin
+from modules.filters import ModuleFilter
 from modules.models import Module
 from modules.pagination import ModulePagination
 from modules.policies import MODULE_MERGE_POLICY
@@ -43,6 +45,8 @@ class ModuleViewSet(
     PermMixin,
     viewsets.ModelViewSet,
 ):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ModuleFilter
     pagination_class = ModulePagination
     serializer_class = ModuleListSerializer
     policies = PolicyRegistry()
