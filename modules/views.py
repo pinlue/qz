@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import viewsets, status
@@ -132,29 +133,34 @@ class ModuleMergeView(APIView):
         for module in modules:
             self.check_object_permissions(request, module)
 
-        new_module = Module.objects.create(
-            name=name,
-            user=request.user,
-            topic=topic,
-            lang_from=modules[0].lang_from,
-            lang_to=modules[0].lang_to,
-        )
+        with transaction.atomic():
+            locked_modules = Module.objects.select_for_update().filter(
+                id__in=[m.id for m in modules]
+            )
 
-        unique_cards = (
-            Card.objects.filter(module__in=modules)
-            .values("original", "translation")
-            .distinct()
-        )
+            new_module = Module.objects.create(
+                name=name,
+                user=request.user,
+                topic=topic,
+                lang_from=modules[0].lang_from,
+                lang_to=modules[0].lang_to,
+            )
 
-        Card.objects.bulk_create(
-            [
-                Card(
-                    module=new_module,
-                    original=card["original"],
-                    translation=card["translation"],
-                )
-                for card in unique_cards
-            ]
-        )
+            unique_cards = (
+                Card.objects.filter(module__in=locked_modules)
+                .values("original", "translation")
+                .distinct()
+            )
+
+            Card.objects.bulk_create(
+                [
+                    Card(
+                        module=new_module,
+                        original=card["original"],
+                        translation=card["translation"],
+                    )
+                    for card in unique_cards
+                ]
+            )
 
         return Response(status=status.HTTP_201_CREATED)
