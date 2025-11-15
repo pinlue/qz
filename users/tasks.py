@@ -5,6 +5,8 @@ from celery import shared_task
 
 @shared_task
 def delete_avatar_file(path: str) -> None:
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f"Avatar file not found: {path}")
-    os.remove(path)
+    try:
+        if os.path.isfile(path):
+            os.remove(path)
+    except Exception as e:
+        pass
