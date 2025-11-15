@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     "silk",
     # cors
     "corsheaders",
+    # django-filters
+    "django_filters"
 ]
 
 SITE_ID = 2
@@ -213,7 +215,7 @@ SIMPLE_JWT = {
 }
 
 # CSRF
-CSRF_TRUSTED_ORIGINS = ["https://ca12bfcf2bb1.ngrok-free.app"]
+CSRF_TRUSTED_ORIGINS = ["https://fce0ae463dfc.ngrok-free.app"]
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
@@ -241,7 +243,7 @@ else:
     # TODO: setup smtp email backend
 
 # Frontend
-EMAIL_VERIFICATION_URL = "http://localhost:3000/"
+EMAIL_VERIFICATION_URL = "http://localhost:3000/login/"
 
 # Fernet
 FERNET_SECRET_KEY = config("FERNET_SECRET_KEY")
