@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django.db.models import Prefetch, Count
-from django.utils.html import format_html
+from django.db.models import Count
 
 from languages.models import Language
-from modules.models import Module
 
 
 @admin.register(Language)
