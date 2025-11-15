@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db import transaction
 from rest_framework import serializers
 from taggit.serializers import TagListSerializerField
 
@@ -60,21 +61,22 @@ class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict[str, Any]) -> Module:
         cards_data = validated_data.pop("cards", [])
-        module = Module.objects.create(**validated_data)
-        if cards_data:
-            from cards.models import Card
+        with transaction.atomic():
+            module = Module.objects.create(**validated_data)
+            if cards_data:
+                from cards.models import Card
 
-            Card.objects.bulk_create(
-                [
-                    Card(
-                        original=card["original"],
-                        translation=card["translation"],
-                        module=module,
-                    )
-                    for card in cards_data
-                ]
-            )
-        return module
+                Card.objects.bulk_create(
+                    [
+                        Card(
+                            original=card["original"],
+                            translation=card["translation"],
+                            module=module,
+                        )
+                        for card in cards_data
+                    ]
+                )
+            return module
 
 
 class ModuleDetailSerializer(serializers.ModelSerializer):
