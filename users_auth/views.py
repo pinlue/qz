@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
