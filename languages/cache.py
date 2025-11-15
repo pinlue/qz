@@ -1,0 +1,2 @@
+CACHE_LANGUAGES_KEY = "languages:list"
+CACHE_LANGUAGES_TTL = 60 * 60 * 24
