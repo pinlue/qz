@@ -14,7 +14,7 @@ class CustomOAuth2Client(OAuth2Client):
         scope_delimiter=" ",
         headers=None,
         basic_auth=False,
-    ):
+    ) -> None:
         super().__init__(
             request,
             consumer_key,
