@@ -1,0 +1,2 @@
+CACHE_TOPICS_KEY = "topics:list"
+CACHE_TOPICS_TTL = 60 * 60 * 24
