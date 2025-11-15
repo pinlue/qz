@@ -1,6 +1,9 @@
 from django.contrib import admin
 
 from users.models import User
+from django.contrib.auth.admin import UserAdmin
 
-# ToDo : Customize admin model
-admin.site.register(User)
+
+@admin.register(User)
+class UserAdmin(UserAdmin):
+    pass
