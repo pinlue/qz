@@ -6,6 +6,7 @@ class CardsConfig(AppConfig):
     name = "cards"
 
     def ready(self):
+        import cards.signals  # noqa
         from cards import policies
         from cards.views import CardViewSet
 

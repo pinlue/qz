@@ -1,0 +1,4 @@
+CACHE_CARDS_KEY = "cards:list:"
+CACHE_CARDS_TTL = 60 * 60
+CACHE_SAVED_CARDS_KEY = "saved:cards:"
+CACHE_SAVED_CARDS_TTL = 60 * 10
