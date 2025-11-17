@@ -37,7 +37,7 @@ def delete_unverified_email(user_id: int, email: str) -> None:
     except EmailAddress.DoesNotExist:
         pass
     except DatabaseError as e:
-        raise e
+        pass
 
 
 @shared_task
