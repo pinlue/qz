@@ -1,5 +1,4 @@
 from celery import shared_task
-from celery_singleton import Singleton
 from django.db import transaction
 from django.utils import timezone
 from celery import current_app
@@ -7,7 +6,7 @@ from celery import current_app
 from common.models import ScheduledTask
 
 
-@shared_task(base=Singleton)
+@shared_task
 def run_scheduled_tasks() -> None:
     now = timezone.now()
     with transaction.atomic():
