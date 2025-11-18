@@ -1,19 +1,19 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from django.db import transaction
 from drf_spectacular.utils import extend_schema_view, extend_schema
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .clients import CustomOAuth2Client
 from .serializers import EmailChangeSerializer, EmailVerifySerializer
-from allauth.account.models import EmailAddress
-
 from .tasks import send_verification_email, schedule_email_deletion
 
 if TYPE_CHECKING:
@@ -38,7 +38,9 @@ if TYPE_CHECKING:
     )
 )
 class EmailChangeView(APIView):
-    permission_classes: list[Type[permissions.BasePermission]] = [permissions.IsAuthenticated]
+    permission_classes: list[Type[permissions.BasePermission]] = [
+        permissions.IsAuthenticated
+    ]
 
     def post(self, request: Request) -> Response:
         serializer = EmailChangeSerializer(
@@ -50,7 +52,9 @@ class EmailChangeView(APIView):
 
         with transaction.atomic():
             email_obj, created = EmailAddress.objects.select_for_update().get_or_create(
-                user=user, email=new_email, defaults={"verified": False, "primary": False}
+                user=user,
+                email=new_email,
+                defaults={"verified": False, "primary": False},
             )
             if not created and not email_obj.verified:
                 return Response(
@@ -88,21 +92,20 @@ class EmailChangeView(APIView):
     )
 )
 class EmailVerifyView(APIView):
-    permission_classes: list[Type[permissions.BasePermission]] = [permissions.AllowAny]
+    permission_classes: list[Type[permissions.BasePermission]] = [
+        permissions.IsAuthenticated
+    ]
 
     def post(self, request: Request) -> Response:
         serializer = EmailVerifySerializer(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        email_address = serializer.save()
+        serializer.save()
 
         return Response(
             {
-                "status": "ok",
-                "email": email_address.email,
-                "primary": email_address.primary,
-                "verified": email_address.verified,
+                "email": request.user.email,
             },
             status=status.HTTP_200_OK,
         )

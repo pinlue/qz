@@ -33,7 +33,7 @@ class EmailVerifySerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid verification key")
         return confirmation
 
-    def save(self) -> EmailAddress:
+    def save(self) -> EmailAddress | None:
         request = self.context.get("request")
         confirmation = self.validated_data["key"]
         email_address = confirmation.confirm(request)
