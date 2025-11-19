@@ -23,8 +23,9 @@ from modules.policies import MODULE_MERGE_POLICY
 from modules.serializers import (
     ModuleListSerializer,
     ModuleDetailSerializer,
-    ModuleCreateUpdateSerializer,
     ModuleMergeSerializer,
+    ModuleCreatePutSerializer,
+    ModulePatchSerializer,
 )
 from modules.service import ModuleService
 
@@ -64,8 +65,10 @@ class ModuleViewSet(
             return ModuleListSerializer
         elif self.action == "retrieve":
             return ModuleDetailSerializer
-        elif self.action in {"create", "update", "partial_update"}:
-            return ModuleCreateUpdateSerializer
+        elif self.action in {"create", "update"}:
+            return ModuleCreatePutSerializer
+        elif self.action == "partial_update":
+            return ModulePatchSerializer
         return super().get_serializer_class()
 
     def get_permissions(self) -> list[BasePermission]:

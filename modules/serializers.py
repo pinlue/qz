@@ -42,7 +42,22 @@ class ModuleListSerializer(serializers.ModelSerializer):
         ]
 
 
-class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
+class ModulePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Module
+        fields = [
+            "id",
+            "name",
+            "description",
+            "user",
+            "topic",
+            "lang_from",
+            "lang_to",
+        ]
+        read_only_fields = ["user"]
+
+
+class ModuleCreatePutSerializer(serializers.ModelSerializer):
     cards = CardCreateSerializer(many=True, write_only=True, required=False)
 
     class Meta:
@@ -61,21 +76,21 @@ class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict[str, Any]) -> Module:
         cards_data = validated_data.pop("cards", [])
+        unique_cards = {(card["original"], card["translation"]) for card in cards_data}
+
         with transaction.atomic():
             module = Module.objects.create(**validated_data)
-            if cards_data:
+
+            if unique_cards:
                 from cards.models import Card
 
                 Card.objects.bulk_create(
                     [
-                        Card(
-                            original=card["original"],
-                            translation=card["translation"],
-                            module=module,
-                        )
-                        for card in cards_data
+                        Card(original=o, translation=t, module=module)
+                        for o, t in unique_cards
                     ]
                 )
+
             return module
 
 
