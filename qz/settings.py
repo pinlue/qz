@@ -221,9 +221,6 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 }
 
-# CSRF
-CSRF_TRUSTED_ORIGINS = ["https://fce0ae463dfc.ngrok-free.app"]
-
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -251,6 +248,8 @@ else:
 
 # Frontend
 EMAIL_VERIFICATION_URL = "http://localhost:3000/login/"
+
+PASSWORD_RESET_URL = "http://localhost:3000/password/reset/"
 
 # Fernet
 FERNET_SECRET_KEY = config("FERNET_SECRET_KEY")
