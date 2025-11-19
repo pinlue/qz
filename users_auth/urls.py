@@ -14,5 +14,6 @@ urlpatterns = [
     path("login/github/callback/", GitHubLoginView.as_view(), name="github_login"),
     path("login/google/callback/", GoogleLoginView.as_view(), name="google_login"),
     path("accounts/", include("allauth.urls")),
+    path('dj-auth/', include('django.contrib.auth.urls')),
     path("", include("dj_rest_auth.urls")),
 ]
