@@ -12,6 +12,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.models import User
 from .clients import CustomOAuth2Client
 from .serializers import EmailChangeSerializer, EmailVerifySerializer
 from .tasks import send_verification_email, schedule_email_deletion
@@ -105,7 +106,7 @@ class EmailVerifyView(APIView):
 
         return Response(
             {
-                "email": request.user.email,
+                "email": User.objects.get(id=request.user.id).email,
             },
             status=status.HTTP_200_OK,
         )
