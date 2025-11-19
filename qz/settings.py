@@ -249,7 +249,7 @@ else:
 # Frontend
 EMAIL_VERIFICATION_URL = "http://localhost:3000/login/"
 
-PASSWORD_RESET_URL = "http://localhost:3000/password/reset/"
+PASSWORD_RESET_URL = "http://localhost:3000/reset-password/"
 
 # Fernet
 FERNET_SECRET_KEY = config("FERNET_SECRET_KEY")
