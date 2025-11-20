@@ -4,6 +4,7 @@ from django.db import models
 
 class Language(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    flag = models.FileField(upload_to="flags/", blank=True, null=True)
     code = models.CharField(
         max_length=3,
         unique=True,

@@ -9,7 +9,7 @@ class LanguageAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "modules_from_lang_count", "modules_to_lang_count")
     search_fields = ("name", "code")
     ordering = ("name",)
-    fields = ("name", "code")
+    fields = ("name", "code", "flag")
     list_per_page = 30
 
     def get_queryset(self, request):
