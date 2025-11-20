@@ -27,6 +27,12 @@ class ModuleListSerializer(serializers.ModelSerializer):
     topic = TopicSerializer(read_only=True)
 
     cards_count = serializers.IntegerField(read_only=True)
+    avg_rate = serializers.DecimalField(
+        read_only=True,
+        max_digits=3,
+        decimal_places=1,
+        coerce_to_string=False
+    )
 
     class Meta:
         model = Module
@@ -39,6 +45,7 @@ class ModuleListSerializer(serializers.ModelSerializer):
             "lang_to",
             "topic",
             "cards_count",
+            "avg_rate",
         ]
 
 

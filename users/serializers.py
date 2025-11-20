@@ -31,6 +31,12 @@ class UserModuleListSerializer(serializers.ModelSerializer):
     pinned = serializers.BooleanField()
 
     user_perm = serializers.CharField()
+    avg_rate = serializers.DecimalField(
+        read_only=True,
+        max_digits=3,
+        decimal_places=1,
+        coerce_to_string=False
+    )
 
     class Meta:
         model = Module
@@ -43,6 +49,7 @@ class UserModuleListSerializer(serializers.ModelSerializer):
             "saved",
             "pinned",
             "user_perm",
+            "avg_rate"
         ]
 
 

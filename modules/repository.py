@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Prefetch, QuerySet
+from django.db.models import Count, Prefetch, QuerySet, Avg
 
 from cards.models import Card
 from common.access_chain import AccessibleChain
@@ -20,7 +20,7 @@ class ModuleRepository:
     def base_qs() -> QuerySet[Module]:
         return Module.objects.select_related(
             "user", "topic", "lang_from", "lang_to"
-        ).annotate(cards_count=Count("cards"))
+        ).annotate(cards_count=Count("cards", distinct=True), avg_rate=Avg("rates__rate"))
 
     @staticmethod
     def with_cards_and_annotations(

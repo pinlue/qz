@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q, Prefetch
+from django.db.models import Count, Q, Prefetch, Avg
 
 from common.permissions import get_accessible_q
 from folders.models import Folder
@@ -58,6 +58,7 @@ class UserRepository:
             Prefetch(
                 "modules",
                 queryset=Module.objects.filter(modules_q)
+                .annotate(avg_rate=Avg("rates__rate"))
                 .with_ann_saved(user)
                 .with_ann_pinned(user)
                 .with_ann_perm(user)
