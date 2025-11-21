@@ -4,7 +4,7 @@ from cards.models import Card
 
 
 class UniqueCardValidatorMixin:
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         module_pk = self.context["view"].kwargs.get("module_pk")
 
         if not module_pk:

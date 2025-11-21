@@ -5,7 +5,7 @@ class CardsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "cards"
 
-    def ready(self):
+    def ready(self) -> None:
         import cards.signals  # noqa
         from cards import policies
         from cards.views import CardViewSet

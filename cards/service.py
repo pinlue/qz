@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 class CardService:
     @staticmethod
-    def get_cards_with_saved(module_id: int, user: User | AnonymousUser) -> list[dict]:
+    def get_cards_with_saved(
+        module_id: int,
+        user: User | AnonymousUser,
+    ) -> list[dict]:
         cards = CardRepository.get_cached_cards(module_id)
 
         if user.is_authenticated:

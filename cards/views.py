@@ -36,7 +36,11 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
     service = CardService()
 
     def list(
-        self, request: Request, module_pk: str | None = None, *args: Any, **kwargs: Any
+        self,
+        request: Request,
+        module_pk: str | None = None,
+        *args: Any,
+        **kwargs: Any,
     ) -> Response:
         data = self.service.get_cards_with_saved(
             module_id=int(module_pk), user=self.request.user
