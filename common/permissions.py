@@ -31,7 +31,10 @@ class RelatedObjPermissionProxy:
         self.lookup_url_kwarg = lookup_url_kwarg
 
     def has_object_permission(
-        self, request: Request, view: APIView, obj: Model
+        self,
+        request: Request,
+        view: APIView,
+        obj: Model,
     ) -> bool:
         nested_id = view.kwargs.get(self.lookup_url_kwarg)
         if nested_id is not None:
@@ -57,7 +60,11 @@ class RelatedObjPermissionProxy:
             delattr(self.decorated_instance, name)
 
 
-def partial_cls(base: Any, *args: Any, **kwargs: Any) -> Any:
+def partial_cls(
+    base: Any,
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
     class Adapter(base):
         def __init__(self):
             super().__init__(*args, **kwargs)
@@ -66,12 +73,22 @@ def partial_cls(base: Any, *args: Any, **kwargs: Any) -> Any:
 
 
 class IsObjOwner(BasePermission):
-    def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
+    def has_object_permission(
+        self,
+        request: Request,
+        view: APIView,
+        obj: Any,
+    ) -> bool:
         return obj.user == request.user
 
 
 class IsObjAdmin(BasePermission):
-    def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
+    def has_object_permission(
+        self,
+        request: Request,
+        view: APIView,
+        obj: Any,
+    ) -> bool:
         return bool(request.user and request.user.is_staff)
 
 
@@ -85,7 +102,10 @@ class OwnerIncludedLink(AccessibleChain):
         return super().handle(q)
 
 
-def get_accessible_q(request: Request | HttpRequest, links: list[Type[AccessibleChain]]) -> Q:
+def get_accessible_q(
+    request: Request | HttpRequest,
+    links: list[Type[AccessibleChain]],
+) -> Q:
     root = AccessibleChain(request)
     for l in links:
         root.add(l())

@@ -18,7 +18,7 @@ class ScheduledTaskAdmin(admin.ModelAdmin):
     ordering = ("-scheduled_time",)
     readonly_fields = ("created",)
 
-    def short_kwargs(self, obj):
+    def short_kwargs(self, obj: ScheduledTask) -> str:
         text = str(obj.kwargs)
         return text if len(text) < 60 else text[:57] + "..."
 

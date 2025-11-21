@@ -13,7 +13,11 @@ class PolicyRegistry:
     def __init__(self) -> None:
         self._policies: dict[str, list[Type[BasePermission]]] = {}
 
-    def register(self, action: str, permissions: list[Type[BasePermission]]) -> None:
+    def register(
+        self,
+        action: str,
+        permissions: list[Type[BasePermission]],
+    ) -> None:
         self._policies[action] = permissions
 
     def get(self, action: str) -> list[Type[BasePermission]]:

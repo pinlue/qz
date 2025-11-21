@@ -11,7 +11,12 @@ if TYPE_CHECKING:
 
 
 class AccessibleChain:
-    def __init__(self, request: Request = None, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        request: Request = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         self.request: Request = request
         self.next_link: AccessibleChain | None = None
 
