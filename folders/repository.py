@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db.models import Count, Q, Prefetch
+
 from common.permissions import get_accessible_q
 from folders.models import Folder
 from modules.models import Module
-from django.db.models import Count, Q, Prefetch
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -21,7 +22,10 @@ class FolderRepository:
         return Folder.objects.select_related("user")
 
     @staticmethod
-    def with_modules_count(qs: QuerySet[Folder], modules_q: Q) -> QuerySet[Folder]:
+    def with_modules_count(
+        qs: QuerySet[Folder],
+        modules_q: Q,
+    ) -> QuerySet[Folder]:
         return qs.annotate(
             modules_count=Count(
                 "modules",
@@ -32,13 +36,17 @@ class FolderRepository:
 
     @staticmethod
     def accessible_for_user(
-        qs: QuerySet[Folder], request: Request, chain_links: list[Type[AccessibleChain]]
+        qs: QuerySet[Folder],
+        request: Request,
+        chain_links: list[Type[AccessibleChain]],
     ) -> QuerySet[Folder]:
         return qs.filter(get_accessible_q(request=request, links=chain_links))
 
     @staticmethod
     def with_modules_prefetched(
-        qs: QuerySet[Folder], user: User, modules_q: Q
+        qs: QuerySet[Folder],
+        user: User,
+        modules_q: Q,
     ) -> QuerySet[Folder]:
         return (
             qs.prefetch_related(

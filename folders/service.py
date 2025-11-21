@@ -21,7 +21,11 @@ class FolderService:
         OwnerIncludedLink,
     ]
 
-    def __init__(self, request: Request | HttpRequest, action: str) -> None:
+    def __init__(
+        self,
+        request: Request | HttpRequest,
+        action: str,
+    ) -> None:
         self.request = request
         self.action = action
 

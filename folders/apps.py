@@ -5,7 +5,7 @@ class FoldersConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "folders"
 
-    def ready(self):
+    def ready(self) -> None:
         from folders import policies
         from folders.views import FolderViewSet
 

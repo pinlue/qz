@@ -1,7 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib import admin
 from django.db.models import Count, Prefetch
+
 from modules.models import Module
 from .models import Folder
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from rest_framework.request import Request
+    from django.http import HttpRequest
 
 
 class FolderModulesInline(admin.TabularInline):
@@ -17,18 +27,20 @@ class FolderModulesInline(admin.TabularInline):
     max_num = 0
     show_change_link = False
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request: Request, obj=None) -> bool:
         return False
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request: Request, obj=None) -> bool:
         return False
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: Request | HttpRequest) -> QuerySet:
         return super().get_queryset(request).select_related("module")
 
-    def module_name(self, obj):
+    def module_name(self, obj) -> str:
         return obj.module.name
+
     module_name.short_description = "Module"
+
 
 @admin.register(Folder)
 class FolderAdmin(admin.ModelAdmin):
@@ -41,7 +53,7 @@ class FolderAdmin(admin.ModelAdmin):
     list_per_page = 50
     inlines = [FolderModulesInline]
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: Request | HttpRequest) -> QuerySet:
         qs = super().get_queryset(request)
         return qs.prefetch_related(
             Prefetch(
@@ -52,5 +64,5 @@ class FolderAdmin(admin.ModelAdmin):
         ).annotate(modules_count=Count("modules", distinct=True))
 
     @admin.display(description="Modules Count", ordering="modules_count")
-    def modules_count(self, obj):
+    def modules_count(self, obj) -> int:
         return obj.modules_count

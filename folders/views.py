@@ -17,7 +17,6 @@ from abstracts.views import VisibleMixin
 from common.decorators import swagger_safe_permissions
 from common.exeptions import UnRegisteredPolicy
 from common.policy import PolicyRegistry
-
 from folders.pagination import FolderPagination
 from folders.serializers import (
     FolderListSerializer,
@@ -120,7 +119,10 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
         url_path="modules/(?P<module_id>[^/.]+)",
     )
     def manage_module(
-        self, request: Request, module_id: int, pk: Optional[int] = None
+        self,
+        request: Request,
+        module_id: int,
+        pk: Optional[int] = None,
     ) -> Response:
         folder = self.get_object()
         module = get_object_or_404(Module, id=module_id)
