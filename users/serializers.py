@@ -2,7 +2,9 @@ from rest_framework import serializers
 from taggit.serializers import TagListSerializerField
 
 from folders.models import Folder
+from languages.serializers import LanguageShortSerializer
 from modules.models import Module
+from topics.serializers import TopicSerializer
 from users.models import User
 
 
@@ -24,6 +26,10 @@ class UserFolderListSerializer(serializers.ModelSerializer):
 
 
 class UserModuleListSerializer(serializers.ModelSerializer):
+    lang_from = LanguageShortSerializer(read_only=True)
+    lang_to = LanguageShortSerializer(read_only=True)
+    topic = TopicSerializer(read_only=True)
+
     cards_count = serializers.IntegerField(read_only=True)
     tags = TagListSerializerField()
 
@@ -44,6 +50,9 @@ class UserModuleListSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "name",
+            "lang_from",
+            "lang_to",
+            "topic",
             "tags",
             "cards_count",
             "saved",
