@@ -22,27 +22,47 @@ if TYPE_CHECKING:
 
 
 class BaseUserRelationMixin:
-    def get_target_user_post(self, request: Request, serializer: Serializer) -> User:
+    def get_target_user_post(
+        self,
+        request: Request,
+        serializer: Serializer,
+    ) -> User:
         return request.user
 
-    def get_target_user_delete(self, request: Request, obj: Model) -> User:
+    def get_target_user_delete(
+        self,
+        request: Request,
+        obj: Model,
+    ) -> User:
         return request.user
 
     @staticmethod
-    def get_queryset_filter(user: User, obj: Model) -> dict[str, Any]:
+    def get_queryset_filter(
+        user: User,
+        obj: Model,
+    ) -> dict[str, Any]:
         return {
             "user": user,
             "content_type": ContentType.objects.get_for_model(obj),
             "object_id": obj.id,
         }
 
-    def _create_or_update_relation(self, user: User, obj: Model, data: dict):
+    def _create_or_update_relation(
+        self,
+        user: User,
+        obj: Model,
+        data: dict,
+    ):
         defaults = self.map_validated_to_defaults(data)
         return self.get_relation_model().objects.update_or_create(
             **self.get_queryset_filter(user, obj), defaults=defaults
         )
 
-    def _delete_relation(self, user: User, obj: Model) -> int:
+    def _delete_relation(
+        self,
+        user: User,
+        obj: Model,
+    ) -> int:
         return (
             self.get_relation_model()
             .objects.filter(**self.get_queryset_filter(user, obj))
@@ -76,7 +96,9 @@ class BaseUserRelationMixin:
 
 class LearnMixin(BaseUserRelationMixin):
     @action(detail=True, methods=["post", "delete"])
-    def learns(self, request: Request, pk: Optional[int] = None, **kwargs):
+    def learns(
+        self, request: Request, pk: Optional[int] = None, **kwargs: Any
+    ) -> Response:
         if request.method == "POST":
             return self.handle_post_action(request)
         return self.handle_delete_action(request)
@@ -99,22 +121,27 @@ class LearnMixin(BaseUserRelationMixin):
 
 class RateMixin(BaseUserRelationMixin):
     @action(detail=True, methods=["post", "delete"])
-    def rates(self, request: Request, pk: Optional[int] = None, **kwargs):
+    def rates(
+        self,
+        request: Request,
+        pk: Optional[int] = None,
+        **kwargs: Any,
+    ) -> Response:
         if request.method == "POST":
             return self.handle_post_action(request)
         return self.handle_delete_action(request)
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         if self.action == "rates":
             return [(~IsObjOwner)()]
         return super().get_permissions()
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "rates":
             return RateSerializer
         return super().get_serializer_class()
 
-    def get_relation_model(self):
+    def get_relation_model(self) -> Type[Model]:
         if self.action == "rates":
             return Rate
         return super().get_relation_model()
@@ -122,7 +149,12 @@ class RateMixin(BaseUserRelationMixin):
 
 class PermMixin(BaseUserRelationMixin):
     @action(detail=True, methods=["post"])
-    def perms(self, request: Request, pk: Optional[int] = None, **kwargs):
+    def perms(
+        self,
+        request: Request,
+        pk: Optional[int] = None,
+        **kwargs: Any,
+    ) -> Response:
         return self.handle_post_action(request)
 
     @action(
@@ -132,26 +164,34 @@ class PermMixin(BaseUserRelationMixin):
         url_name="delete_perm_for_user",
     )
     def delete_perm(
-        self, request: Request, pk: int = None, user_id: int = None, **kwargs
-    ):
+        self,
+        request: Request,
+        pk: int = None,
+        user_id: int = None,
+        **kwargs: Any,
+    ) -> Response:
         return self.handle_delete_perm(request, user_id)
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[BasePermission]:
         if self.action in ("perms", "delete_perm"):
             return [(IsObjAdmin | IsObjOwner)()]
         return super().get_permissions()
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "perms":
             return PermSerializer
         return super().get_serializer_class()
 
-    def get_relation_model(self):
+    def get_relation_model(self) -> Type[Model]:
         if self.action in ("perms", "delete_perm"):
             return Perm
         return super().get_relation_model()
 
-    def get_target_user_post(self, request: Request, serializer: Serializer) -> User:
+    def get_target_user_post(
+        self,
+        request: Request,
+        serializer: Serializer,
+    ) -> User:
         if self.action == "perms":
             user = serializer.validated_data.get("user")
             if user is None:
@@ -161,7 +201,11 @@ class PermMixin(BaseUserRelationMixin):
             return user
         return super().get_target_user_post(request, serializer)
 
-    def handle_delete_perm(self, request: Request, user_id: int) -> Response:
+    def handle_delete_perm(
+        self,
+        request: Request,
+        user_id: int,
+    ) -> Response:
         obj = self.get_object()
         try:
             target_user = User.objects.get(pk=user_id)

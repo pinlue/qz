@@ -16,10 +16,18 @@ if TYPE_CHECKING:
 
 
 class HasObjRoles(BasePermission):
-    def __init__(self, roles: list[str] | list[Perm.Status]) -> None:
+    def __init__(
+        self,
+        roles: list[str] | list[Perm.Status],
+    ) -> None:
         self.roles = roles
 
-    def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
+    def has_object_permission(
+        self,
+        request: Request,
+        view: APIView,
+        obj: Any,
+    ) -> bool:
         ct = ContentType.objects.get_for_model(obj.__class__)
         return Perm.objects.filter(
             user=request.user, object_id=obj.id, perm__in=self.roles, content_type=ct
@@ -27,7 +35,11 @@ class HasObjRoles(BasePermission):
 
 
 class PermissionIncludedLink(AccessibleChain):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         self.model = kwargs.pop("model")
         self.perms = kwargs.pop("perms")
         super().__init__(*args, **kwargs)
