@@ -26,7 +26,12 @@ class TagMixin:
         },
     )
     @action(detail=True, methods=["post"])
-    def tags(self, request: Request, pk: str | None = None, **kwargs: Any) -> Response:
+    def tags(
+        self,
+        request: Request,
+        pk: str | None = None,
+        **kwargs: Any,
+    ) -> Response:
         serializer = TagsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -51,9 +56,17 @@ class TagMixin:
             404: None,
         },
     )
-    @action(detail=True, methods=["delete"], url_path="tags/(?P<tag_name>[^/]+)")
+    @action(
+        detail=True,
+        methods=["delete"],
+        url_path="tags/(?P<tag_name>[^/]+)",
+    )
     def remove_tag(
-        self, request: Request, tag_name: str, pk: str | None = None, **kwargs: Any
+        self,
+        request: Request,
+        tag_name: str,
+        pk: str | None = None,
+        **kwargs: Any,
     ) -> Response:
         obj = self.get_object()
 
@@ -80,9 +93,15 @@ class VisibleMixin:
         },
         methods=["PATCH"],
     )
-    @action(detail=True, methods=["patch"])
+    @action(
+        detail=True,
+        methods=["patch"],
+    )
     def visibles(
-        self, request: Request, pk: str | None = None, **kwargs: Any
+        self,
+        request: Request,
+        pk: str | None = None,
+        **kwargs: Any,
     ) -> Response:
         obj = self.get_object()
         serializer = VisibleSerializer(data=request.data)

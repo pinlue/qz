@@ -16,7 +16,10 @@ if TYPE_CHECKING:
 
 class IsObjPublic(BasePermission):
     def has_object_permission(
-        self, request: Request, view: APIView, obj: Visible
+        self,
+        request: Request,
+        view: APIView,
+        obj: Visible,
     ) -> bool:
         return obj.visible == Visible.Status.PUBLIC
 
