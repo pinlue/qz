@@ -42,6 +42,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = FolderFilter
     pagination_class = FolderPagination
+    saves_serializer_class = FolderListSerializer
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[Folder]:

@@ -51,6 +51,7 @@ class ModuleViewSet(
     filterset_class = ModuleFilter
     pagination_class = ModulePagination
     serializer_class = ModuleListSerializer
+    saves_serializer_class = ModuleListSerializer
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[Module]:

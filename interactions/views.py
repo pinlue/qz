@@ -60,6 +60,11 @@ class SaveMixin(RelationMixin, InteractionsPermsMixin):
             return Save
         return super().get_relation_model()
 
+    def get_saves_serializer_class(self):
+        if hasattr(self, "saves_serializer_class"):
+            return self.saves_serializer_class
+        return self.get_serializer_class()
+
     @toggle_post_schema
     @toggle_delete_schema
     @action(detail=True, methods=["post", "delete"], url_path="saves")
@@ -67,3 +72,21 @@ class SaveMixin(RelationMixin, InteractionsPermsMixin):
         self, request: Request, pk: Optional[int] = None, **kwargs: dict
     ) -> Response:
         return super().toggle(request, pk=pk)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"saves/users/(?P<user_id>\d+)",
+    )
+    def user_saves_list(
+        self, request: Request, user_id: Optional[int] = None, **kwargs: dict
+    ):
+        queryset = self.filter_queryset(self.get_queryset())
+        saved_queryset = queryset.filter(saves__user_id=user_id)
+
+        serializer_class = self.get_saves_serializer_class()
+
+        serializer = serializer_class(
+            saved_queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)

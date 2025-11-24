@@ -32,6 +32,7 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
     filterset_class = CardFilter
     pagination_class = CardPagination
     serializer_class = CardSerializer
+    saves_serializer_class = CardSerializer
     policies = PolicyRegistry()
     service = CardService()
 
