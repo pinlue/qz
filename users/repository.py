@@ -58,7 +58,10 @@ class UserRepository:
             Prefetch(
                 "modules",
                 queryset=Module.objects.filter(modules_q)
-                .annotate(avg_rate=Avg("rates__rate"))
+                .annotate(
+                    avg_rate=Avg("rates__rate"),
+                    cards_count=Count("cards"),
+                )
                 .with_ann_saved(user)
                 .with_ann_pinned(user)
                 .with_ann_perm(user)
