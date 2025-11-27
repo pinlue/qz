@@ -52,6 +52,9 @@ class UserRepository:
             Prefetch(
                 "folders",
                 queryset=Folder.objects.filter(folders_q)
+                .annotate(
+                    modules_count=Count("modules")
+                )
                 .with_ann_saved(user)
                 .with_ann_pinned(user),
             ),
