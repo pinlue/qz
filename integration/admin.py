@@ -8,7 +8,7 @@ class DeepLApiKeyForm(forms.ModelForm):
     new_api_key = forms.CharField(
         label="Set new API Key",
         required=False,
-        widget=forms.PasswordInput(render_value=True),  # ховає текст
+        widget=forms.PasswordInput(render_value=True),
         help_text="Enter a new API key to replace the current one."
     )
 

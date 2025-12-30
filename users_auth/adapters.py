@@ -1,5 +1,3 @@
-from typing import Any
-
 from allauth.account.adapter import DefaultAccountAdapter
 
 from qz.settings import EMAIL_VERIFICATION_URL, PASSWORD_RESET_URL
