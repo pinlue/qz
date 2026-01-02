@@ -10,7 +10,12 @@ from rest_framework.response import Response
 
 from common.permissions import IsObjOwner, IsObjAdmin
 from generic_status.models import Learn, Rate, Perm
-from generic_status.serializers import RateSerializer, PermSerializer, LearnSerializer
+from generic_status.serializers import (
+    RateSerializer,
+    PermSerializer,
+    LearnSerializer,
+    PermListSerializer,
+)
 from users.models import User
 
 if TYPE_CHECKING:
@@ -172,18 +177,34 @@ class PermMixin(BaseUserRelationMixin):
     ) -> Response:
         return self.handle_delete_perm(request, user_id)
 
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="perms/users",
+        url_name="list_perm_users",
+    )
+    def list_perm_users(
+        self,
+        request: Request,
+        pk: Optional[int] = None,
+        **kwargs: Any,
+    ) -> Response:
+        return self.handle_list_perm_users(request)
+
     def get_permissions(self) -> list[BasePermission]:
-        if self.action in ("perms", "delete_perm"):
+        if self.action in {"perms", "delete_perm", "list_perm_users"}:
             return [(IsObjAdmin | IsObjOwner)()]
         return super().get_permissions()
 
     def get_serializer_class(self) -> Type[Serializer]:
+        if self.action == "list_perm_users":
+            return PermListSerializer
         if self.action == "perms":
             return PermSerializer
         return super().get_serializer_class()
 
     def get_relation_model(self) -> Type[Model]:
-        if self.action in ("perms", "delete_perm"):
+        if self.action in {"perms", "delete_perm"}:
             return Perm
         return super().get_relation_model()
 
@@ -214,3 +235,14 @@ class PermMixin(BaseUserRelationMixin):
 
         self._delete_relation(target_user, obj)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def handle_list_perm_users(self, request: Request) -> Response:
+        obj = self.get_object()
+        content_type = ContentType.objects.get_for_model(obj)
+        queryset = Perm.objects.filter(
+            content_type=content_type, object_id=obj.pk
+        ).select_related(
+            "user"
+        )
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
