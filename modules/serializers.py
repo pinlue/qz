@@ -146,7 +146,7 @@ class ModuleMergeSerializer(serializers.Serializer):
     )
 
     def validate_modules(self, module_ids: list[int]) -> list[Module]:
-        modules = list(Module.objects.filter(id__in=module_ids))
+        modules = list(Module.objects.filter(id__in=module_ids).select_related("lang_from", "lang_to"))
         if len(modules) != len(module_ids):
             raise serializers.ValidationError("Some modules were not found")
 
