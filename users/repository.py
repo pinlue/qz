@@ -61,6 +61,7 @@ class UserRepository:
             Prefetch(
                 "modules",
                 queryset=Module.objects.filter(modules_q)
+                .select_related("lang_from", "lang_to", "topic")
                 .annotate(
                     avg_rate=Avg("rates__rate"),
                     cards_count=Count("cards"),
