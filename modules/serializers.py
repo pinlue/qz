@@ -8,7 +8,7 @@ from taggit.serializers import TagListSerializerField
 
 from cards.serializers import (
     CardShortSerializer,
-    CardCreateSerializer,
+    CardCreateRelatedSerializer,
 )
 from languages.serializers import LanguageShortSerializer, LanguageSerializer
 from modules.models import Module
@@ -65,7 +65,7 @@ class ModulePatchSerializer(serializers.ModelSerializer):
 
 
 class ModuleCreatePutSerializer(serializers.ModelSerializer):
-    cards = CardCreateSerializer(many=True, write_only=True, required=False)
+    cards = CardCreateRelatedSerializer(many=True, write_only=True, required=False)
 
     class Meta:
         model = Module

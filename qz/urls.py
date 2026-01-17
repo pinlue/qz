@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/v1/deepl/", include("integration.urls")),
     path("api/v1/folders/", include("folders.urls")),
     path("api/v1/users/", include("users.urls")),
+    path("api/v1/cards/", include("cards.urls")),
     path("api/v1/", include("modules.urls")),
     # docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

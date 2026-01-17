@@ -3,28 +3,7 @@ from rest_framework import serializers
 from cards.models import Card
 
 
-class UniqueCardValidatorMixin:
-    def validate(self, attrs: dict) -> dict:
-        module_pk = self.context["view"].kwargs.get("module_pk")
-
-        if not module_pk:
-            raise serializers.ValidationError('Missing "module_pk" parameter')
-
-        exists = Card.objects.filter(
-            module_id=module_pk,
-            original=attrs.get("original"),
-            translation=attrs.get("translation"),
-        ).exists()
-
-        if exists:
-            raise serializers.ValidationError(
-                "Card with this original and translation already exists in this module."
-            )
-
-        return attrs
-
-
-class CardSerializer(UniqueCardValidatorMixin, serializers.ModelSerializer):
+class CardSerializer(serializers.ModelSerializer):
     saved = serializers.BooleanField(read_only=True)
 
     class Meta:
@@ -44,6 +23,13 @@ class CardShortSerializer(serializers.ModelSerializer):
 
 
 class CardCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Card
+        fields = ["id", "original", "translation", "module"]
+        read_only_fields = ["id"]
+
+
+class CardCreateRelatedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
         fields = ["original", "translation"]

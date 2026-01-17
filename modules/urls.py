@@ -1,19 +1,14 @@
 from django.urls import path
 from drf_spectacular.utils import extend_schema_view, extend_schema
-from rest_framework.routers import SimpleRouter
-from rest_framework_nested import routers
+from rest_framework.routers import DefaultRouter
 
-from cards.views import CardViewSet
 from io_manager.views import GenericImportView, GenericExportView
 from .io import ModuleCardsImporter, ModuleCardsExporter
 from .models import Module
 from .views import ModuleViewSet, ModuleMergeView
 
-router = SimpleRouter()
+router = DefaultRouter()
 router.register(r"modules", ModuleViewSet, basename="modules")
-
-modules_router = routers.NestedSimpleRouter(router, r"modules", lookup="module")
-modules_router.register(r"cards", CardViewSet, basename="module-cards")
 
 generic_urls = [
     path(
@@ -42,4 +37,4 @@ module_merge_urls = [
     path("modules/merge/", ModuleMergeView.as_view(), name="modules-merge"),
 ]
 
-urlpatterns = module_merge_urls + generic_urls + router.urls + modules_router.urls
+urlpatterns = module_merge_urls + generic_urls + router.urls
