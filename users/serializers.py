@@ -91,3 +91,23 @@ class UserPrivateSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "username", "avatar", "first_name", "last_name", "bio", "email", "date_joined", "is_staff", "is_superuser"]
         read_only_fields = ["id", "email", "date_joined", "is_staff", "is_superuser"]
+
+
+class UserRatingListSerializer(serializers.ModelSerializer):
+    avg_rate = serializers.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        read_only=True,
+        coerce_to_string=False
+    )
+    public_modules_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "avatar",
+            "username",
+            "avg_rate",
+            "public_modules_count"
+        ]

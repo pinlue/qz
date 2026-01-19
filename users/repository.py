@@ -1,7 +1,19 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q, Prefetch, Avg
+from django.db.models import (
+    Count,
+    Q,
+    Prefetch,
+    Avg,
+    Subquery,
+    OuterRef,
+    IntegerField,
+    Value,
+    DecimalField,
+)
+from django.db.models.functions import Coalesce
 
 from common.permissions import get_accessible_q
 from folders.models import Folder
@@ -71,4 +83,27 @@ class UserRepository:
                 .with_ann_perm(user)
                 .prefetch_related("tags", "cards"),
             ),
+        )
+
+    @staticmethod
+    def with_public_author_stats(qs: QuerySet[User]) -> QuerySet[User]:
+        count_sq = Subquery(
+            Module.objects.filter(user=OuterRef("pk"), visible="public")
+            .values("user")
+            .annotate(cnt=Count("id"))
+            .values("cnt"),
+            output_field=IntegerField(),
+        )
+        return (
+            qs.annotate(
+                public_modules_count=Coalesce(count_sq, Value(0)),
+                avg_rate=Coalesce(
+                    Avg("modules__rates__rate", filter=Q(modules__visible="public")),
+                    Value(0.0),
+                    output_field=DecimalField(),
+                ),
+            )
+            .filter(public_modules_count__gt=0)
+            .only("id", "username", "avatar", "email")
+            .order_by("-avg_rate", "-public_modules_count")
         )

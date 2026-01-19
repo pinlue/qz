@@ -9,14 +9,18 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     OpenApiParameter,
 )
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, viewsets, permissions, generics
 
 from common.exeptions import UnRegisteredPolicy
 from common.policy import PolicyRegistry
 from users.filters import UserFilter
 from users.models import User
 from users.pagination import UserPagination
-from users.serializers import UserPublicDetailSerializer, UserPublicSerializer
+from users.serializers import (
+    UserPublicDetailSerializer,
+    UserPublicSerializer,
+    UserRatingListSerializer,
+)
 from users.service import UserService
 
 if TYPE_CHECKING:
@@ -97,3 +101,14 @@ class UserViewSet(
         if self.action == "list":
             return UserPublicSerializer
         return super().get_serializer_class()
+
+
+@extend_schema(tags=["users"])
+class UserRatingsListView(generics.ListAPIView):
+    serializer_class = UserRatingListSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = UserPagination
+
+    def get_queryset(self):
+        service = UserService(request=self.request, action="ratings")
+        return service.get_queryset()

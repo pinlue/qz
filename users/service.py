@@ -28,4 +28,7 @@ class UserService:
             qs = UserRepository.with_public_counts(qs)
             return qs
 
+        if self.action == "ratings":
+            return UserRepository.with_public_author_stats(qs)
+
         return qs
