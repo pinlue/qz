@@ -51,6 +51,11 @@ class UserRepository:
                 filter=Q(modules__visible="public"),
                 distinct=True,
             ),
+            avg_rate=Coalesce(
+                Avg("modules__rates__rate", filter=Q(modules__visible="public")),
+                Value(0.0),
+                output_field=DecimalField(),
+            ),
         )
 
     @staticmethod

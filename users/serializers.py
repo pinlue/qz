@@ -70,6 +70,10 @@ class UserPublicDetailSerializer(serializers.ModelSerializer):
     public_folders_count = serializers.IntegerField(read_only=True)
     total_cards_count = serializers.IntegerField(read_only=True)
 
+    avg_rate = serializers.DecimalField(
+        max_digits=3, decimal_places=1, read_only=True, coerce_to_string=False
+    )
+
     class Meta:
         model = User
         fields = [
@@ -83,6 +87,7 @@ class UserPublicDetailSerializer(serializers.ModelSerializer):
             "public_modules_count",
             "public_folders_count",
             "total_cards_count",
+            "avg_rate"
         ]
 
 
