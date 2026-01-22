@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models import When, Case, Value, BooleanField
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Exists, OuterRef, Value, BooleanField
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
@@ -10,28 +11,38 @@ if TYPE_CHECKING:
     from users.models import User
 
 
-class BaseAnnotateRelationMixin:
-    def _annotate_flag(
-        self, user: User, field_name: str, related_name: str
-    ) -> QuerySet:
+
+class AnnotatePinnedMixin:
+    def with_ann_pinned(self, user: User | AnonymousUser) -> QuerySet:
+        from interactions.models import Pin
+
         if not user.is_authenticated:
-            return self.annotate(**{field_name: Value(False)})
+            return self.annotate(pinned=Value(False, output_field=BooleanField()))
+
         return self.annotate(
-            **{
-                field_name: Case(
-                    When(**{f"{related_name}__user": user}, then=Value(True)),
-                    default=Value(False),
-                    output_field=BooleanField(),
+            pinned=Exists(
+                Pin.objects.filter(
+                    object_id=OuterRef("pk"),
+                    content_type__model=ContentType.objects.get_for_model(self.model),
+                    user=user
                 )
-            }
+            )
         )
 
 
-class AnnotatePinnedMixin(BaseAnnotateRelationMixin):
-    def with_ann_pinned(self, user: User | AnonymousUser) -> QuerySet:
-        return self._annotate_flag(user, "pinned", "pins")
-
-
-class AnnotateSavedMixin(BaseAnnotateRelationMixin):
+class AnnotateSavedMixin:
     def with_ann_saved(self, user: User | AnonymousUser) -> QuerySet:
-        return self._annotate_flag(user, "saved", "saves")
+        from interactions.models import Save
+
+        if not user.is_authenticated:
+            return self.annotate(saved=Value(False, output_field=BooleanField()))
+
+        return self.annotate(
+            saved=Exists(
+                Save.objects.filter(
+                    object_id=OuterRef("pk"),
+                    content_type__model=ContentType.objects.get_for_model(self.model),
+                    user=user
+                )
+            )
+        )
