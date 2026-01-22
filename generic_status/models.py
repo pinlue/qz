@@ -31,7 +31,7 @@ class Perm(UserObjectRelation):
     perm = models.CharField(max_length=6, choices=Status.choices)
 
     class Meta:
-        unique_together = ("user", "content_type", "object_id", "perm")
+        unique_together = ("user", "content_type", "object_id")
 
 
 class Learnable(models.Model):
