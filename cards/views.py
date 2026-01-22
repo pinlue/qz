@@ -37,7 +37,7 @@ class CardViewSet(SaveMixin, LearnMixin, viewsets.ModelViewSet):
             return CardCreateSerializer
         elif self.action in {"retrieve", "list", "update", "partial_update"}:
             return CardSerializer
-        return self.get_serializer_class()
+        return super().get_serializer_class()
 
     @swagger_safe_permissions
     def get_permissions(self) -> list[BasePermission]:
