@@ -53,6 +53,29 @@ class PinMixin(RelationMixin, InteractionsPermsMixin):
     ) -> Response:
         return super().toggle(request, pk=pk)
 
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"pins/users/(?P<user_id>\d+)",
+    )
+    def user_pins_list(
+        self, request: Request, user_id: Optional[int] = None, **kwargs: dict
+    ):
+        queryset = self.filter_queryset(self.get_queryset())
+        pined_queryset = queryset.filter(pins__user_id=user_id)
+
+        serializer_class = self.get_pins_serializer_class()
+
+        serializer = serializer_class(
+            pined_queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_pins_serializer_class(self):
+        if hasattr(self, "pins_serializer_class"):
+            return self.pins_serializer_class
+        return self.get_serializer_class()
+
 
 class SaveMixin(RelationMixin, InteractionsPermsMixin):
     def get_relation_model(self) -> Type[Model]:

@@ -43,6 +43,7 @@ class FolderViewSet(PinMixin, SaveMixin, VisibleMixin, viewsets.ModelViewSet):
     filterset_class = FolderFilter
     pagination_class = FolderPagination
     saves_serializer_class = FolderListSerializer
+    pins_serializer_class = FolderListSerializer
     policies = PolicyRegistry()
 
     def get_queryset(self) -> QuerySet[Folder]:

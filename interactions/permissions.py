@@ -8,6 +8,6 @@ class InteractionsPermsMixin:
     def get_permissions(self) -> list[BasePermission]:
         if self.action in {"pins", "saves"}:
             return [permissions.IsAuthenticated()]
-        if self.action == "user_saves_list":
+        if self.action in {"user_saves_list", "user_pins_list"}:
             return [permissions.IsAuthenticated(), (IsObjAdmin | IsObjOwner)()]
         return super().get_permissions()
